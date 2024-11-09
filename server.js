@@ -13,12 +13,13 @@ const cors = require('cors');
 
 
 const corsOptions = {
-  origin: '*',  //temporary all
-  methods: '*', 
-  allowedHeaders: '*',  
+  origin: '*', // Allow all origins TEMPORARY
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-app.use(cors(corsOptions)); 
+app.use(cors(corsOptions));
+
 
 app.use((req, res, next) => {
   res.setTimeout(60000, () => { 
