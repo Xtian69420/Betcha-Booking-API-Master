@@ -6,7 +6,6 @@ const multer = require('multer');
 const { google } = require('googleapis');
 require('dotenv').config();
 
-
 const drive = google.drive({
   version: 'v3',
   auth: new google.auth.JWT(
@@ -17,54 +16,52 @@ const drive = google.drive({
   ),
 });
 
-
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('IdImage');
 const folderId = '1lEpQdJjO5awi_Gq75ue3W4jwLJajMUJk';
 const streamifier = require('streamifier');
 
-const uploadToGoogleDrive = async (fileBuffer, fileName, mimeType, folderId) => {
+// Function to upload to Google Drive
+async function uploadToGoogleDrive(fileBuffer, fileName, mimeType, folderId) {
   try {
-    // Upload the file to Google Drive
-    const res = await drive.files.create({
-      requestBody: {
-        name: fileName,
-        mimeType: mimeType,
-        parents: [folderId],
-      },
-      media: {
-        mimeType: mimeType,
-        body: fileBuffer,
-      },
-      fields: 'id, name',
+    const fileMetadata = {
+      name: fileName,
+      parents: [folderId], // Optional: Specify the folder to upload the file to
+    };
+
+    // Convert the buffer into a stream
+    const fileStream = streamifier.createReadStream(fileBuffer);
+
+    const media = {
+      mimeType: mimeType,
+      body: fileStream, // Use the stream here instead of the buffer
+    };
+
+    // Upload the file to Google Drive using the global drive instance
+    const response = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink', // Fields you want to retrieve after upload
     });
 
-    const fileId = res.data.id;
-
-    // Make the file publicly accessible
-    await drive.permissions.create({
-      fileId: fileId,
-      requestBody: {
-        role: 'reader', 
-        type: 'anyone', 
-      },
-    });
-
-    const fileUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
-
-    return { fileId, fileUrl };
+    // Return the file info (e.g., fileId and webViewLink)
+    return {
+      fileId: response.data.id,
+      fileUrl: response.data.webViewLink,
+    };
   } catch (error) {
-    throw new Error(`Failed to upload file to Google Drive: ${error.message}`);
+    console.error('Failed to upload file to Google Drive:', error);
+    throw new Error('Failed to upload file to Google Drive: ' + error.message);
   }
-};
-
+}
 
 exports.registerUser = (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
       return res.status(500).json({ error: 'File upload failed', details: err.message });
     }
+
+    console.log('Uploaded file:', req.file); // Debugging the file upload
 
     const { email, password, phoneNumber, firstName, middleInitial, lastName, isVerified } = req.body;
     if (!email || !password || !firstName || !lastName) {
@@ -82,6 +79,8 @@ exports.registerUser = (req, res) => {
 
       // Upload the image to Google Drive and get the public file URL
       const uploadedFile = await uploadToGoogleDrive(req.file.buffer, req.file.originalname, req.file.mimetype, folderId);
+
+      console.log('Uploaded file details:', uploadedFile); // Debugging the uploaded file response
 
       const newUser = new User({
         email,
@@ -101,11 +100,14 @@ exports.registerUser = (req, res) => {
       });
 
       const savedUser = await newUser.save();
+      console.log('Saved user:', savedUser); // Debugging saved user
+
       res.status(201).json({
         message: 'User registered successfully',
         data: savedUser,
       });
     } catch (error) {
+      console.error('Error during user registration:', error);
       res.status(500).json({ error: 'Failed to register user', details: error.message });
     }
   });
