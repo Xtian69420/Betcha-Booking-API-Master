@@ -12,8 +12,14 @@ const UserSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false, set: v => v === 'TRUE' },
     role: { type: String, default: "User" },
 
-    IdImageLink: { type: String, default: "N/A"}
-
+    IdImage: { 
+        filename: {type:String, required: true},
+        name: {type : String, required: true},
+        image:{
+            data : Buffer,
+            contentType : String
+        }
+    }
 }, {
     collection: 'user_tb'  
 });
