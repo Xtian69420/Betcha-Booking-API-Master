@@ -9,6 +9,17 @@ const unitController = require('./controllers/unitController');
 const app = express();
 app.use(bodyParser.json());
 
+const cors = require('cors');
+
+
+const corsOptions = {
+  origin: '*',  //temporary all
+  methods: '*', 
+  allowedHeaders: '*',  
+};
+
+app.use(cors(corsOptions)); 
+
 app.use((req, res, next) => {
   res.setTimeout(60000, () => { 
     res.status(408).send('Request Timeout');
