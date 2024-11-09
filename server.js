@@ -15,7 +15,7 @@ const cors = require('cors');
 const corsOptions = {
   origin: '*', // Allow all origins TEMPORARY
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: '*',
 };
 
 app.use(cors(corsOptions));
@@ -30,9 +30,8 @@ app.use((req, res, next) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running`);
 });
 
 app.post('/Register', userController.registerUser);
