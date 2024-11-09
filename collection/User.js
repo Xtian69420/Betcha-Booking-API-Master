@@ -13,15 +13,16 @@ const UserSchema = new mongoose.Schema({
     role: { type: String, default: "User" },
 
     IdImage: { 
-        filename: {type:String, required: true},
-        name: {type : String, required: true},
-        image:{
-            data : Buffer,
-            contentType : String
+        filename: { type: String, required: true },  
+        name: { type: String, required: true },      
+        fileId: { type: String, required: true },    
+        image: {
+            data: { type: Buffer },                   
+            contentType: { type: String }             
         }
     }
 }, {
-    collection: 'user_tb'  
+    collection: 'user_tb'
 });
 
 module.exports = mongoose.model('User', UserSchema);

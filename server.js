@@ -3,8 +3,10 @@ const bodyParser = require('body-parser');
 const mongoose = require('./db'); 
 const path = require('path');
 
+
 const userController = require('./controllers/userController');
 const unitController = require('./controllers/unitController');
+const adminController = require('./controllers/adminController')
 
 const app = express();
 app.use(bodyParser.json());
@@ -13,7 +15,7 @@ const cors = require('cors');
 
 
 const corsOptions = {
-  origin: '*', // Allow all origins TEMPORARY
+  origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
 };
@@ -35,13 +37,26 @@ app.listen(PORT, () => {
   console.log(`Server is running`);
 });
 
-app.post('/Register', userController.registerUser);
-app.post('/Login', userController.loginUser);
-app.post('/addUnit', unitController.addUnit);
-app.get('/getUserIdImage/:userId', userController.getUserIdImage);
-app.get('/user/:userId', userController.getUserById);
+// test_server
 app.get('/ping', (req, res) => {
   res.status(200).send('Server is alive!');
 });
+
+// User_Routes
+app.post('/Register', userController.registerUser);
+app.post('/Login', userController.loginUser);
+app.get('/getUserIdImage/:userId', userController.getUserIdImage);
+app.get('/user/:userId', userController.getUserById);
 app.put('/updateUser/:userId', userController.updateUser);
 app.delete('/deleteUser/:userId', userController.deleteUser);
+
+// Admin_Routes
+app.post('/createAdmin', adminController.createAdmin);
+app.post('/LoginAdmin', adminController.loginAdmin);
+app.delete('/deleteAdmin/:adminId', adminController.deleteAdmin);
+app.put('/updateAdmin/:adminId', adminController.updateAdmin);
+app.get('/getAdminInfo/:adminId', adminController.getAdminInfo);
+
+// Unit_Routes
+app.post('/addUnit', unitController.addUnit);
+
