@@ -3,16 +3,15 @@ const bodyParser = require('body-parser');
 const mongoose = require('./db'); 
 const path = require('path');
 
-
 const userController = require('./controllers/userController');
 const unitController = require('./controllers/unitController');
-const adminController = require('./controllers/adminController')
+const adminController = require('./controllers/adminController');
+const superAdminController = require('./controllers/superAdminController');
 
 const app = express();
 app.use(bodyParser.json());
 
 const cors = require('cors');
-
 
 const corsOptions = {
   origin: '*', 
@@ -36,7 +35,7 @@ app.listen(PORT, () => {
   console.log(`Server is running`);
 });
 
-// test_server
+// loading before loading any page (HTML) to make sure that the user won't make any transaction before the server starts 
 app.get('/ping', (req, res) => {
   res.status(200).send('Server is alive!');
 });
@@ -63,10 +62,29 @@ app.get('/units', unitController.getAllUnits);
 app.get('/getUnitById/:id', unitController.getAllUnits);
 app.put('/editUnit/:id', unitController.editUnit);
 
-// Payment_Routes
-
-// TopUnit_Routes
-
-// Notification_Routes
+// Super_Admin_Routes
+app.post('/superAdminRegister', superAdminController.createSuperAdmin);
+app.post('/superAdminLogin', superAdminController.loginSuperAdmin);
+app.put('/superAdminEdit/:superAdminId', superAdminController.editSuperAdmin);
+app.delete('/superAdminDelete/:superAdminId', superAdminController.deleteSuperAdmin);
 
 // Bookings_Routes
+    // post (/book)
+    // put (/editBook)
+    // get (/getAllBookings)
+    // get (/getAllBookings/:userId)
+
+// TopUnit_Routes
+    // get (/getAnualTopUnits)
+    // get (/getMonthlyEarnings(Weeks))
+    // get (/getAnualEarnings(Months))
+
+// Notification_Routes
+    // post (/notif)
+    // get (/allNotif/:userid)
+    // get (/allNottif/)
+    // delete (/notif/:notifId)
+
+// ID_Confirmation_Routes
+    // same as app.get('/user/:userId', userController.getUserById);
+    // same as app.put('/updateUser/:userId', userController.updateUser);
