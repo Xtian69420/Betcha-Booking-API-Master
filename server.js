@@ -22,7 +22,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
 app.use((req, res, next) => {
   res.setTimeout(60000, () => { 
     res.status(408).send('Request Timeout');
@@ -59,4 +58,15 @@ app.get('/getAdminInfo/:adminId', adminController.getAdminInfo);
 
 // Unit_Routes
 app.post('/addUnit', unitController.addUnit);
+app.delete('/deleteUnit', unitController.deleteUnit);
+app.get('/units', unitController.getAllUnits);
+app.get('/getUnitById/:id', unitController.getAllUnits);
+app.put('/editUnit/:id', unitController.editUnit);
 
+// Payment_Routes
+
+// TopUnit_Routes
+
+// Notification_Routes
+
+// Bookings_Routes

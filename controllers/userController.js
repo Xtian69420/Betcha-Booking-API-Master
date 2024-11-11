@@ -26,25 +26,21 @@ async function uploadToGoogleDrive(fileBuffer, fileName, mimeType, folderId) {
   try {
     const fileMetadata = {
       name: fileName,
-      parents: [folderId], // Optional: Specify the folder to upload the file to
+      parents: [folderId], 
     };
-
-    // Convert the buffer into a stream
     const fileStream = streamifier.createReadStream(fileBuffer);
 
     const media = {
       mimeType: mimeType,
-      body: fileStream, // Use the stream here instead of the buffer
+      body: fileStream, 
     };
 
-    // Upload the file to Google Drive using the global drive instance
     const response = await drive.files.create({
       resource: fileMetadata,
       media: media,
-      fields: 'id, webViewLink', // Fields you want to retrieve after upload
+      fields: 'id, webViewLink',
     });
 
-    // Return the file info (e.g., fileId and webViewLink)
     return {
       fileId: response.data.id,
       fileUrl: response.data.webViewLink,
@@ -61,14 +57,13 @@ exports.registerUser = (req, res) => {
       return res.status(500).json({ error: 'File upload failed', details: err.message });
     }
 
-    console.log('Uploaded file:', req.file); // Debugging the file upload
+    console.log('Uploaded file:', req.file); 
 
     const { email, password, phoneNumber, firstName, middleInitial, lastName, isVerified } = req.body;
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ error: 'Required fields: email, password, firstName, lastName!' });
     }
 
-    // Validate image file type
     const validMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (req.file && !validMimeTypes.includes(req.file.mimetype)) {
       return res.status(400).json({ error: 'Invalid image type. Only JPG, PNG, or GIF are allowed.' });
@@ -77,10 +72,9 @@ exports.registerUser = (req, res) => {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Upload the image to Google Drive and get the public file URL
       const uploadedFile = await uploadToGoogleDrive(req.file.buffer, req.file.originalname, req.file.mimetype, folderId);
 
-      console.log('Uploaded file details:', uploadedFile); // Debugging the uploaded file response
+      console.log('Uploaded file details:', uploadedFile); 
 
       const newUser = new User({
         email,
@@ -92,15 +86,15 @@ exports.registerUser = (req, res) => {
         isVerified,
         IdImage: uploadedFile
           ? {
-              filename: uploadedFile.fileId, // Store the file ID in your DB
-              name: uploadedFile.fileUrl, // Store the public file URL
-              fileId: uploadedFile.fileId, // Store the file ID for reference
+              filename: uploadedFile.fileId, 
+              name: uploadedFile.fileUrl, 
+              fileId: uploadedFile.fileId, 
             }
           : undefined,
       });
 
       const savedUser = await newUser.save();
-      console.log('Saved user:', savedUser); // Debugging saved user
+      console.log('Saved user:', savedUser); 
 
       res.status(201).json({
         message: 'User registered successfully',
