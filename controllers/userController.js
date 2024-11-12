@@ -21,7 +21,6 @@ const upload = multer({ storage }).single('IdImage');
 const folderId = '1lEpQdJjO5awi_Gq75ue3W4jwLJajMUJk';
 const streamifier = require('streamifier');
 
-// Function to upload to Google Drive
 async function uploadToGoogleDrive(fileBuffer, fileName, mimeType, folderId) {
   try {
     const fileMetadata = {
@@ -57,7 +56,7 @@ exports.registerUser = (req, res) => {
       return res.status(500).json({ error: 'File upload failed', details: err.message });
     }
 
-    console.log('Uploaded file:', req.file); 
+    console.log('Uploaded file:', req.file);
 
     const { email, password, phoneNumber, firstName, middleInitial, lastName, isVerified } = req.body;
     if (!email || !password || !firstName || !lastName) {
@@ -106,8 +105,6 @@ exports.registerUser = (req, res) => {
     }
   });
 };
-
-
 
 exports.loginUser = async (req, res) => {
   const email = req.body.email || req.query.email; 
@@ -184,19 +181,18 @@ exports.getUserIdImage = async (req, res) => {
         ),
       });
 
-      // Get the file from Google Drive using the file ID
       const file = await drive.files.get({
         fileId: user.IdImage.fileId,
-        fields: 'webContentLink', // Retrieve the web content link (URL) of the file
+        fields: 'webContentLink', 
       });
 
-      const imageUrl = file.data.webContentLink; // Google Drive URL for file download
+      const imageUrl = file.data.webContentLink; 
 
       res.status(200).json({
         message: 'User fetched successfully',
         data: {
           ...user.toObject(),
-          imageUrl,  // Send the URL of the image
+          imageUrl,  
         },
       });
     } else {
