@@ -64,10 +64,11 @@ app.get('/getUnitById/:id', unitController.getAllUnits);
 app.put('/editUnit/:id', unitController.editUnit);
 
 // Super_Admin_Routes
+/*
 app.post('/superAdminRegister', superAdminController.createSuperAdmin);
 app.post('/superAdminLogin', superAdminController.loginSuperAdmin);
 app.put('/superAdminEdit/:superAdminId', superAdminController.editSuperAdmin);
-app.delete('/superAdminDelete/:superAdminId', superAdminController.deleteSuperAdmin);
+app.delete('/superAdminDelete/:superAdminId', superAdminController.deleteSuperAdmin);*/
 
 // Bookings_Routes
     // post (/book)
