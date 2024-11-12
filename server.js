@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('./db'); 
 const path = require('path');
+require('dotenv').config();
 
 const userController = require('./controllers/userController');
 const unitController = require('./controllers/unitController');
