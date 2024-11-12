@@ -1,0 +1,1 @@
+const BookingsModel = require('../collection/Bookings');

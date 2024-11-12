@@ -3,9 +3,7 @@ const bcrypt = require('bcryptjs');
 const { findById } = require('../collection/Admin');
 const jwt = require('jsonwebtoken');
 
-
 exports.createAdmin = async (req, res)=>{
-
     try {
     const {email, password, adminName} = req.body || req.query;
     
@@ -119,4 +117,13 @@ exports.getAdminInfo = async (req, res) =>{
     } catch (error) {
     res.status(500).json({ error: 'Error fetching admin', details: error.message });
     }
+}
+
+exports.getAllAdmin = async (req, res)=>{
+    try {
+        const admin = await Admin.find();
+        res.status(200).json(admin);
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch all admin', details: error.message });
+      }
 }
