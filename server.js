@@ -72,7 +72,7 @@ app.post('/superAdminLogin', superAdminController.loginSuperAdmin);
 app.put('/superAdminEdit/:superAdminId', superAdminController.updateSuperAdmin); 
 app.delete('/superAdminDelete/:superAdminId', superAdminController.deleteSuperAdmin);
 app.get('/getAllSuperAdmin', superAdminController.getAllSuperAdmin);
-
+app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
 
 // Bookings_Routes
     // post (/createBooking)

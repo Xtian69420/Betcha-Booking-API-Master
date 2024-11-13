@@ -124,3 +124,22 @@ exports.getAllSuperAdmin = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch all SuperAdmins', details: error.message });
     }
 };
+
+exports.getSuperAdminInfo = async (req, res) =>{
+    try{
+        const SuperadminId = req.params.superAdminId;
+
+        const Superadmin = await SuperAdmin.findById(SuperadminId);
+        if (!Superadmin){
+            res.status(404).json({
+                error: 'Super Admin not found'
+            })
+        }
+        res.status(200).json({
+            message: 'Super Admin fetched successfully',
+            data: admin
+          });
+    } catch (error) {
+    res.status(500).json({ error: 'Error fetching Super admin', details: error.message });
+    }
+}
