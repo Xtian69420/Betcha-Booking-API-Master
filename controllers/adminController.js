@@ -118,7 +118,6 @@ exports.getAdminInfo = async (req, res) =>{
     res.status(500).json({ error: 'Error fetching admin', details: error.message });
     }
 }
-
 exports.getAllAdmin = async (req, res)=>{
     try {
         const admin = await Admin.find();
@@ -127,3 +126,4 @@ exports.getAllAdmin = async (req, res)=>{
         res.status(500).json({ error: 'Failed to fetch all admin', details: error.message });
       }
 }
+ 
