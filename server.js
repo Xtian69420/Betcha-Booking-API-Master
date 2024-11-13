@@ -55,6 +55,8 @@ app.post('/LoginAdmin', adminController.loginAdmin);
 app.delete('/deleteAdmin/:adminId', adminController.deleteAdmin);
 app.put('/updateAdmin/:adminId', adminController.updateAdmin);
 app.get('/getAdminInfo/:adminId', adminController.getAdminInfo);
+app.get('/getAllAdmins', adminController.getAllAdmin);
+
 
 // Unit_Routes
 app.post('/addUnit', unitController.addUnit);
@@ -64,22 +66,24 @@ app.get('/getUnitById/:id', unitController.getAllUnits);
 app.put('/editUnit/:id', unitController.editUnit);
 
 // Super_Admin_Routes
-/*
+
 app.post('/superAdminRegister', superAdminController.createSuperAdmin);
 app.post('/superAdminLogin', superAdminController.loginSuperAdmin);
 app.put('/superAdminEdit/:superAdminId', superAdminController.editSuperAdmin);
-app.delete('/superAdminDelete/:superAdminId', superAdminController.deleteSuperAdmin);*/
+app.delete('/superAdminDelete/:superAdminId', superAdminController.deleteSuperAdmin);
+app.get('/getAllSuperAdmin', superAdminController.getAllSuperAdmin);
 
 // Bookings_Routes
-    // post (/book)
-    // put (/editBook)
-    // get (/getAllBookings)
+    // post (/createBooking)
+    // put (/editBooking)
+    // get (/getAllBookStatusSuccess)
+    // get (/getAllBookStatusPending)
     // get (/getAllBookings/:userId)
 
 // TopUnit_Routes
     // get (/getAnualTopUnits)
-    // get (/getMonthlyEarnings(Weeks))
-    // get (/getAnualEarnings(Months))
+    // get (/getMonthlyEarnings(Weeks)) from today to last 4 weeks
+    // get (/getAnualEarnings(Months)) from today to last 12 months
 
 // Notification_Routes
     // post (/notif)
