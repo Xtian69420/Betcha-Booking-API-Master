@@ -15,7 +15,8 @@ const drive = google.drive({
 });
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage }).array('unitImages', 8); // up to 8 images
+const upload = multer({ storage }).array('unitImages', 8);
+// const upload = multer({ storage }).single('unitImages');
 const folderId = '1WfnLJoASraDje1YVAHDlYIpKOTu0DNYh';
 
 async function uploadToGoogleDrive(fileBuffer, fileName, mimeType, folderId) {
@@ -50,8 +51,11 @@ async function uploadToGoogleDrive(fileBuffer, fileName, mimeType, folderId) {
 exports.addUnit = (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
+      console.error('Multer error:', err);
       return res.status(500).json({ error: 'File upload failed', details: err.message });
     }
+    console.log('Files:', req.files);
+    console.log('Body:', req.body);    
 
     const { unitName, location, description, inclusion, unitPrice, isAvailable, maxPax, pricePerPax } = req.body;
     const unitImages = req.files;
@@ -97,7 +101,6 @@ exports.addUnit = (req, res) => {
     }
   });
 };
-
 
 exports.getAllUnits = async (req, res) => {
   try {
