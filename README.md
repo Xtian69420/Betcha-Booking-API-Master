@@ -25,6 +25,6 @@
 
 1. Clone the repository to your local machine:
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/Xtian69420/Betcha-Booking-API-Master.git
 2. cd <project_directory>
 3. npm install
