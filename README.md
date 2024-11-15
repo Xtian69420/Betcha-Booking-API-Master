@@ -31,7 +31,7 @@
 ------------------------------
 ### 2️⃣ **Usage Instructions**
 ------------------------------
-1. JSONWEBTOKEN(JWT):
+***1. JSONWEBTOKEN(JWT):***
 ```
     app.post('/login', async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
@@ -44,3 +44,43 @@
     res.header('auth-token', token).send(token);
 });
 ```
+------------------------------
+***2. Multer:***
+```
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.send({ message: 'File uploaded successfully', file: req.file });
+});
+```
+------------------------------
+***3. Google API:***
+```
+const { google } = require('googleapis');
+
+const uploadToDrive = async (filePath) => {
+    const auth = new google.auth.GoogleAuth({
+        keyFile: 'path-to-credentials.json',
+        scopes: ['https://www.googleapis.com/auth/drive.file'],
+    });
+    const drive = google.drive({ version: 'v3', auth });
+
+    const response = await drive.files.create({
+        requestBody: {
+            name: 'uploaded_file',
+            mimeType: 'application/octet-stream',
+        },
+        media: {
+            mimeType: 'application/octet-stream',
+            body: fs.createReadStream(filePath),
+        },
+    });
+
+    console.log('File uploaded successfully:', response.data);
+};
+```
+------------------------------
+To start the project:
+```bash
+   node server.js
