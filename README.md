@@ -30,7 +30,9 @@
 3. npm install
 
 ### 2️⃣ **Usage Instructions**
-```JSONWEBTOKEN(JWT):
+------------------------------
+JSONWEBTOKEN(JWT):
+```
     app.post('/login', async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(400).send('Invalid email or password');
