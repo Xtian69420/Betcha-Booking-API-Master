@@ -28,10 +28,10 @@
    git clone https://github.com/Xtian69420/Betcha-Booking-API-Master.git
 2. cd <project_directory>
 3. npm install
-
+------------------------------
 ### 2️⃣ **Usage Instructions**
 ------------------------------
-JSONWEBTOKEN(JWT):
+1. JSONWEBTOKEN(JWT):
 ```
     app.post('/login', async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
@@ -43,3 +43,4 @@ JSONWEBTOKEN(JWT):
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
     res.header('auth-token', token).send(token);
 });
+```
