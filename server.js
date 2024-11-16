@@ -8,6 +8,7 @@ const userController = require('./controllers/userController');
 const unitController = require('./controllers/unitController');
 const adminController = require('./controllers/adminController');
 const superAdminController = require('./controllers/superAdminController');
+const notificationController = require('./controllers/notificationController');
 
 const app = express();
 app.use(bodyParser.json());
@@ -87,10 +88,13 @@ app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
     // get (/getAnualEarnings(Months)) from today to last 12 months
 
 // Notification_Routes
-    // post (/notif)
-    // get (/allNotif/:userid)
-    // get (/allNottif/)
-    // delete (/notif/:notifId)
+    app.post ('/notif', notificationController.CreateNotif);
+    app.get ('/allNottif/', notificationController.getAllNotif);
+    app.get ('/AllNotifInUser/:userId', notificationController.getAllNotifUser);
+    app.get ('/AllNotifInAdmin/:adminId', notificationController.getAllNotifAdmin);
+    app.get ('/AllNotifInSuper/:superAdminId', notificationController.getAllNotifSuper);
+    app.get ('/Notif/:notifid', notificationController.getSpecificNtoif);
+    app.delete ('/notif/:notifId', notificationController.deleteNotif)
 
 // ID_Confirmation_Routes
     // same as app.get('/user/:userId', userController.getUserById);
