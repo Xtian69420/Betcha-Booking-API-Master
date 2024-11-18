@@ -17,6 +17,7 @@ const drive = google.drive({
 });
 
 const storage = multer.memoryStorage();
+// create uploadProfile 'profileImage'
 const upload = multer({ storage }).single('IdImage');
 const folderId = '1lEpQdJjO5awi_Gq75ue3W4jwLJajMUJk';
 const streamifier = require('streamifier');
@@ -70,7 +71,7 @@ exports.registerUser = (req, res) => {
 
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
-
+      // create upload fro profileImage
       const uploadedFile = await uploadToGoogleDrive(req.file.buffer, req.file.originalname, req.file.mimetype, folderId);
 
       console.log('Uploaded file details:', uploadedFile); 
