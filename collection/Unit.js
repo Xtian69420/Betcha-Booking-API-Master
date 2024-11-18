@@ -18,6 +18,7 @@ const UnitSchema = new mongoose.Schema({
     maxPax: { type: Number, required: true, min: 1 },
     pricePerPax: { type: Number, required: true },
     UnitImages: [ImageSchema] 
+    // create a fields for bookDates
 }, {
     collection: 'unit_tb'
 });
