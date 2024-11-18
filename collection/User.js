@@ -11,7 +11,15 @@ const UserSchema = new mongoose.Schema({
 
     isVerified: { type: Boolean, default: false},
     role: { type: String, default: "User" },
-    //profilImage
+    profileImage: {
+        filename: { type: String, default: ''}, // Add ng link
+        name: {type: String, default: ''},
+        fileId: { type: String, default: ''},
+        image: {
+            data: { type: Buffer },
+            contentType: { type: String }
+        }
+    },
     IdImage: { 
         filename: { type: String, required: true },  
         name: { type: String, required: true },      
