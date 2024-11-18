@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
 
     isVerified: { type: Boolean, default: false, set: v => v === 'TRUE' },
     role: { type: String, default: "User" },
-
+    //profilImage
     IdImage: { 
         filename: { type: String, required: true },  
         name: { type: String, required: true },      

@@ -23,7 +23,6 @@ exports.CreateNotif = async (req, res) => {
     }
 };
 
-
 exports.getAllNotif = async (req, res) => {
     try {
         const notifications = await NotificationModel.find();

@@ -58,7 +58,6 @@ app.put('/updateAdmin/:adminId', adminController.updateAdmin);
 app.get('/getAdminInfo/:adminId', adminController.getAdminInfo);
 app.get('/getAllAdmins', adminController.getAllAdmin);
 
-
 // Unit_Routes
 app.post('/addUnit', unitController.addUnit);
 app.delete('/deleteUnit', unitController.deleteUnit);
@@ -66,11 +65,10 @@ app.get('/units', unitController.getAllUnits);
 app.get('/getUnitById/:id', unitController.getUnitById);
 app.put('/editUnit/:id', unitController.editUnit);
 
-
 // Super_Admin_Routes
 app.post('/superAdminRegister', superAdminController.createSuperAdmin);
 app.post('/superAdminLogin', superAdminController.loginSuperAdmin);
-app.put('/superAdminEdit/:superAdminId', superAdminController.updateSuperAdmin); 
+app.put('/superAdminEdit/:superAdminId', superAdminController.updateSuperAdmin);
 app.delete('/superAdminDelete/:superAdminId', superAdminController.deleteSuperAdmin);
 app.get('/getAllSuperAdmin', superAdminController.getAllSuperAdmin);
 app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
