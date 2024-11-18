@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     middleInitial: { type: String, default: "N/A" },
     lastName: { type: String, required: true },
 
-    isVerified: { type: Boolean, default: false, set: v => v === 'TRUE' },
+    isVerified: { type: Boolean, default: false},
     role: { type: String, default: "User" },
     //profilImage
     IdImage: { 
