@@ -6,7 +6,7 @@ const ImageSchema = new mongoose.Schema({
     fileId: { type: String, required: true },
     contentType: { type: String, required: true }
 });
-
+// remove inclusion and change it to amenities boolean
 const UnitSchema = new mongoose.Schema({
     Top: { type: Number, required: true, min: 1 },
     unitName: { type: String, required: true, unique: true },
