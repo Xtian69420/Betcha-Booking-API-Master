@@ -78,7 +78,6 @@ app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
     // put (/editBooking)
     // get (/getAllBookStatusSuccess)
     // get (/getAllBookStatusPending)
-
     // get (/getAllBookings/:userId)
 
 // TopUnit_Routes
