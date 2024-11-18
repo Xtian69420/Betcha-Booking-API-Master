@@ -77,7 +77,6 @@ app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
     // post (/createBooking)
     // put (/editBooking)
     // get (/getAllBookStatusSuccess)
-    
     // get (/getAllBookStatusPending)
 
     // get (/getAllBookings/:userId)
