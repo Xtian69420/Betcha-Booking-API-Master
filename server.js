@@ -50,6 +50,15 @@ app.get('/user/:userId', userController.getUserById);
 app.put('/updateUser/:userId', userController.updateUser);
 app.delete('/deleteUser/:userId', userController.deleteUser);
 
+// Get_Unverified_Users_ROute
+app.get('/users/unverified', userController.getUnverifiedUsers);
+
+// User_Profile_Routes
+app.post('/profile-image/:userId', userController.uploadProfileImage); 
+app.get('/profile-image/:userId', userController.getProfileImage);   
+app.put('/profile-image/:userId', userController.updateProfileImage); 
+app.delete('/profile-image/:userId', userController.deleteProfileImage);
+
 // Admin_Routes
 app.post('/createAdmin', adminController.createAdmin);
 app.post('/LoginAdmin', adminController.loginAdmin);
@@ -97,4 +106,3 @@ app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
 // ID_Confirmation_Routes
     // same as app.get('/user/:userId', userController.getUserById);
     // same as app.put('/updateUser/:userId', userController.updateUser);
-    //

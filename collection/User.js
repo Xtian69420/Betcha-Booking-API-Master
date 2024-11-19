@@ -11,10 +11,11 @@ const UserSchema = new mongoose.Schema({
 
     isVerified: { type: Boolean, default: false},
     role: { type: String, default: "User" },
+
     profileImage: {
-        filename: { type: String, default: ''}, // Add ng link
-        name: {type: String, default: ''},
-        fileId: { type: String, default: ''},
+        filename: { type: String, default: '672fa43f474960c8a5765da8'}, 
+        name: {type: String, default: 'Default Profile'},
+        fileId: { type: String, default: '672fa43f474960c8a5765da8'},
         image: {
             data: { type: Buffer },
             contentType: { type: String }

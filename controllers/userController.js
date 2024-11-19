@@ -17,9 +17,8 @@ const drive = google.drive({
 });
 
 const storage = multer.memoryStorage();
-// create uploadProfile 'profileImage'
 const upload = multer({ storage }).single('IdImage');
-const folderId = '1lEpQdJjO5awi_Gq75ue3W4jwLJajMUJk';
+const folderId = '1sL-VBECK9rMbBnJqxtL52IObJTrwysno';
 const streamifier = require('streamifier');
 
 async function uploadToGoogleDrive(fileBuffer, fileName, mimeType, folderId) {
@@ -71,7 +70,6 @@ exports.registerUser = (req, res) => {
 
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
-      // create upload fro profileImage
       const uploadedFile = await uploadToGoogleDrive(req.file.buffer, req.file.originalname, req.file.mimetype, folderId);
 
       console.log('Uploaded file details:', uploadedFile); 
@@ -159,7 +157,6 @@ exports.getUserById = async (req, res) => {
     res.status(500).json({ error: 'Error fetching user', details: error.message });
   }
 };
-// create route for getProfileImage
 exports.getUserIdImage = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -171,7 +168,6 @@ exports.getUserIdImage = async (req, res) => {
     }
 
     if (user.IdImage && user.IdImage.fileId) {
-      // Create a Google Drive service instance
       const drive = google.drive({
         version: 'v3',
         auth: new google.auth.JWT(
@@ -251,5 +247,135 @@ exports.deleteUser = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete user', details: error.message });
+  }
+};
+
+const profileImageFolderId = "1na-zyeguXEpK5WEKWOQVd2VQuqStHgRB"; 
+
+exports.uploadProfileImage = async (req, res) => {
+  const upload = multer({ storage }).single('profileImage');
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(500).json({ error: 'File upload failed', details: err.message });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const userId = req.params.userId;
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const validMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!validMimeTypes.includes(req.file.mimetype)) {
+        return res.status(400).json({ error: 'Invalid image type. Only JPG, PNG, or GIF are allowed.' });
+      }
+
+      const uploadedFile = await uploadToGoogleDrive(req.file.buffer, req.file.originalname, req.file.mimetype, profileImageFolderId);
+
+      user.profileImage = {
+        filename: req.file.originalname,
+        name: uploadedFile.fileUrl,
+        fileId: uploadedFile.fileId,
+      };
+
+      await user.save();
+
+      res.status(200).json({
+        message: 'Profile image uploaded successfully',
+        data: user.profileImage,
+      });
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      res.status(500).json({ error: 'Failed to upload profile image', details: error.message });
+    }
+  });
+};
+
+exports.getProfileImage = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.profileImage && user.profileImage.fileId) {
+      const file = await drive.files.get({
+        fileId: user.profileImage.fileId,
+        fields: 'webContentLink',
+      });
+
+      res.status(200).json({
+        message: 'Profile image fetched successfully',
+        imageUrl: file.data.webContentLink,
+      });
+    } else {
+      res.status(404).json({ error: 'Profile image not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching profile image:', error);
+    res.status(500).json({ error: 'Failed to fetch profile image', details: error.message });
+  }
+};
+
+exports.updateProfileImage = async (req, res) => {
+  try {
+    await exports.uploadProfileImage(req, res);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update profile image', details: error.message });
+  }
+};
+
+exports.deleteProfileImage = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.profileImage && user.profileImage.fileId) {
+      await drive.files.delete({ fileId: user.profileImage.fileId });
+      user.profileImage = {
+        filename: '',
+        name: '',
+        fileId: '',
+      };
+      await user.save();
+
+      res.status(200).json({ message: 'Profile image deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Profile image not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting profile image:', error);
+    res.status(500).json({ error: 'Failed to delete profile image', details: error.message });
+  }
+};
+
+
+exports.getUnverifiedUsers = async (req, res) => {
+  try {
+    const unverifiedUsers = await User.find({ isVerified: false });
+
+    if (unverifiedUsers.length === 0) {
+      return res.status(404).json({ message: 'No unverified users found' });
+    }
+
+    res.status(200).json({
+      message: 'Unverified users fetched successfully',
+      data: unverifiedUsers,
+    });
+  } catch (error) {
+    console.error('Error fetching unverified users:', error);
+    res.status(500).json({ error: 'Failed to fetch unverified users', details: error.message });
   }
 };
