@@ -134,27 +134,83 @@ exports.getAllPaymentsByUnit = async (req, res) => {
     }
 };
 
-// Webhook Handler
 exports.handleWebhook = async (req, res) => {
     try {
-        const { data } = req.body;
+        const sig = req.headers['paymongo-signature']; 
+        const payload = JSON.stringify(req.body); 
+        
+        // Validate the signature
+        const hmac = crypto.createHmac('sha256', payMongoApiKey);
+        hmac.update(payload);
+        const expectedSig = hmac.digest('hex');
 
-        const payMongoId = data.id;
-        const mop = data.attributes.payment_method_type;
-        const status = data.attributes.status;
-
-        const payment = await PaymentModel.findOne({ PayMongoId: payMongoId });
-        if (!payment) {
-            return res.status(404).json({ error: 'Payment not found' });
+        if (sig !== expectedSig) {
+            return res.status(400).json({ error: 'Invalid signature' });
         }
 
-        payment.Mop = mop;
-        payment.Status = status;
-        await payment.save();
+        const event = req.body.data;
+        const eventType = event.type;
 
-        res.status(200).json({ message: 'Payment updated successfully', payment });
+        // Handle different event types
+        switch (eventType) {
+            case 'source.chargeable':
+                await handleSourceChargeable(event);
+                break;
+            case 'payment.paid':
+                await handlePaymentPaid(event);
+                break;
+            case 'payment.failed':
+                await handlePaymentFailed(event);
+                break;
+            default:
+                console.log(`Unhandled event type: ${eventType}`);
+        }
+
+        // Respond to PayMongo to acknowledge receipt
+        return res.status(200).send('Webhook received successfully');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Failed to process webhook' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
+};
+
+// Handle a chargeable source event (when the source is ready to be charged)
+const handleSourceChargeable = async (event) => {
+    const sourceId = event.data.id;
+    const amount = event.data.attributes.amount / 100; // Convert amount from cents to PHP
+    const status = 'Chargeable';
+
+    // Optionally, save the source and amount in the database
+    const paymentData = {
+        SourceId: sourceId,
+        Amount: amount,
+        Status: status,
+    };
+
+    const newPayment = new PaymentModel(paymentData);
+    await newPayment.save();
+
+    console.log(`Source ${sourceId} is chargeable. Amount: PHP ${amount}`);
+};
+
+// Handle a successful payment event
+const handlePaymentPaid = async (event) => {
+    const paymentId = event.data.id;
+    const status = 'Successful';
+
+    // Update the payment status in your database
+    await PaymentModel.updateOne({ PayMongoId: paymentId }, { Status: status });
+
+    console.log(`Payment ${paymentId} was successful.`);
+};
+
+// Handle a failed payment event
+const handlePaymentFailed = async (event) => {
+    const paymentId = event.data.id;
+    const status = 'Failed';
+
+    // Update the payment status in your database
+    await PaymentModel.updateOne({ PayMongoId: paymentId }, { Status: status });
+
+    console.log(`Payment ${paymentId} failed.`);
 };
