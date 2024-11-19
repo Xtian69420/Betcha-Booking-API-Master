@@ -10,6 +10,7 @@ const adminController = require('./controllers/adminController');
 const superAdminController = require('./controllers/superAdminController');
 const notificationController = require('./controllers/notificationController');
 const bookingController = require('./controllers/bookingController');
+const paymentController = require('./controllers/paymentController');
 
 const app = express();
 app.use(bodyParser.json());
@@ -38,7 +39,7 @@ app.listen(PORT, () => {
   console.log(`Server is running`);
 });
 
-
+// Test_Ping_Route
 app.get('/ping', (req, res) => {
   res.status(200).send('Server is alive!');
 });
@@ -99,13 +100,13 @@ app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit)
     // get (/getAnualEarnings(Months)) from today to last 12 months
 
 // Notification_Routes
-    app.post ('/notif', notificationController.CreateNotif);
-    app.get ('/allNottif/', notificationController.getAllNotif);
-    app.get ('/AllNotifInUser/:userId', notificationController.getAllNotifUser);
-    app.get ('/AllNotifInAdmin/:adminId', notificationController.getAllNotifAdmin);
-    app.get ('/AllNotifInSuper/:superAdminId', notificationController.getAllNotifSuper);
-    app.get ('/Notif/:notifid', notificationController.getSpecificNtoif);
-    app.delete ('/notif/:notifId', notificationController.deleteNotif)
+app.post ('/notif', notificationController.CreateNotif);
+app.get ('/allNottif/', notificationController.getAllNotif);
+app.get ('/AllNotifInUser/:userId', notificationController.getAllNotifUser);
+app.get ('/AllNotifInAdmin/:adminId', notificationController.getAllNotifAdmin);
+app.get ('/AllNotifInSuper/:superAdminId', notificationController.getAllNotifSuper);
+app.get ('/Notif/:notifid', notificationController.getSpecificNtoif);
+app.delete ('/notif/:notifId', notificationController.deleteNotif)
 
 // ID_Confirmation_Routes
     // same as app.get('/user/:userId', userController.getUserById);
@@ -115,5 +116,9 @@ app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit)
   // get OTP
   // Post ConfirmOTP
 
-// Payment
-  // post payment
+app.post('/payment/reservation', paymentController.PaymentReservation);
+app.post('/payment/full', paymentController.FullPayment);
+app.get('/payments', paymentController.getAllPayments);
+app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
+app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
+app.post('/payment/webhook', paymentController.handleWebhook);
