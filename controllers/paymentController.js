@@ -133,10 +133,10 @@ exports.getAllPaymentsByUnit = async (req, res) => {
 
 exports.handleWebhook = async (req, res) => {
     try {
-        const sig = req.headers['paymongo-signature'];  // PayMongo's signature from the header
-        const payload = JSON.stringify(req.body);  // The body of the webhook request
-        
-        // Validate the webhook signature
+
+        const sig = req.headers['paymongo-signature']; 
+        const payload = JSON.stringify(req.body); 
+
         const hmac = crypto.createHmac('sha256', payMongoApiKey);
         hmac.update(payload);
         const expectedSig = hmac.digest('hex');
@@ -145,80 +145,48 @@ exports.handleWebhook = async (req, res) => {
             return res.status(400).json({ error: 'Invalid signature' });
         }
 
-        // Extract event and event type from webhook payload
         const event = req.body.data;
         const eventType = event.type;
 
-        // You can save the full webhook payload (or just the signature, based on your needs)
-        const webhookData = {
-            webhookSignature: sig,
-            webhookPayload: JSON.stringify(req.body)  // Save the full payload, or adjust as needed
-        };
-
-        // Optional: Save the signature and payload to a specific payment entry if you want to link it
-        // Assuming the event contains a payment ID, you can save the webhook details to the related payment
-        if (eventType === 'payment.paid' || eventType === 'payment.failed') {
-            const paymentId = event.data.id;
-            await PaymentModel.updateOne(
-                { PayMongoId: paymentId },
-                { $set: { webhook: webhookData } } // Save the webhook signature and payload to the payment
-            );
-        }
-
-        // Handle different events
         switch (eventType) {
-            case 'source.chargeable':
-                await handleSourceChargeable(event);
-                break;
             case 'payment.paid':
-                await handlePaymentPaid(event);
+                await handlePaymentPaid(event);  
                 break;
             case 'payment.failed':
-                await handlePaymentFailed(event);
+                await handlePaymentFailed(event);  
                 break;
             default:
                 console.log(`Unhandled event type: ${eventType}`);
         }
 
-        // Respond to acknowledge receipt of the webhook
-        return res.status(200).send('Webhook received successfully');
+        return res.status(200).send('Webhook received and processed successfully');
     } catch (error) {
-        console.error(error);
+        console.error('Error processing webhook:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
 
-const handleSourceChargeable = async (event) => {
-    const sourceId = event.data.id;
-    const amount = event.data.attributes.amount / 100;  // Convert to proper amount (PayMongo sends amount in cents)
-    const status = 'Chargeable';
-
-    const paymentData = {
-        SourceId: sourceId,
-        Amount: amount,
-        Status: status,
-    };
-
-    const newPayment = new PaymentModel(paymentData);
-    await newPayment.save();
-
-    console.log(`Source ${sourceId} is chargeable. Amount: PHP ${amount}`);
-};
-
 const handlePaymentPaid = async (event) => {
-    const paymentId = event.data.id;
-    const status = 'Successful';
+    const paymentId = event.data.id; 
+    const status = 'Successful'; 
+    const mop = 'PayMongo'; 
 
-    await PaymentModel.updateOne({ PayMongoId: paymentId }, { Status: status });
+    await PaymentModel.updateOne(
+        { PayMongoId: paymentId },
+        { $set: { Status: status, Mop: mop } }
+    );
 
     console.log(`Payment ${paymentId} was successful.`);
 };
 
 const handlePaymentFailed = async (event) => {
     const paymentId = event.data.id;
-    const status = 'Failed';
+    const status = 'Failed'; 
 
-    await PaymentModel.updateOne({ PayMongoId: paymentId }, { Status: status });
+    await PaymentModel.updateOne(
+        { PayMongoId: paymentId },
+        { $set: { Status: status } }
+    );
 
     console.log(`Payment ${paymentId} failed.`);
 };
