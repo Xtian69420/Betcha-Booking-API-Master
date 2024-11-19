@@ -8,7 +8,8 @@ const PaymentSchema = mongoose.Schema({
     Amount: { type: Number, required: true },
     Description: { type: String, required: true },
     Status: { type: String, required: true, default: 'Pending' },
-    PayMongoId: { type: String, required: true } 
+    PayMongoId: { type: String, required: true },
+    webhook: { type: String }
 }, {
     collection: 'payments_tb',
 });

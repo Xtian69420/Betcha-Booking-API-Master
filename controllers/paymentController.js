@@ -1,10 +1,10 @@
 const PaymentModel = require('../collection/Payment');
+const crypto = require('crypto');
 const fetch = require('node-fetch');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
 const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2';
 
-// Helper function to generate payment link
 const generatePaymentLink = async (amount, description) => {
     const response = await fetch(payMongoApiUrl, {
         method: 'POST',
@@ -97,7 +97,6 @@ exports.FullPayment = async (req, res) => {
     }
 };
 
-// Get All Payments
 exports.getAllPayments = async (req, res) => {
     try {
         const payments = await PaymentModel.find({});
@@ -108,7 +107,6 @@ exports.getAllPayments = async (req, res) => {
     }
 };
 
-// Get Payments by User
 exports.getAllPaymentsByUser = async (req, res) => {
     const { userId } = req.params;
 
@@ -121,7 +119,6 @@ exports.getAllPaymentsByUser = async (req, res) => {
     }
 };
 
-// Get Payments by Unit
 exports.getAllPaymentsByUnit = async (req, res) => {
     const { unitId } = req.params;
 
@@ -136,10 +133,10 @@ exports.getAllPaymentsByUnit = async (req, res) => {
 
 exports.handleWebhook = async (req, res) => {
     try {
-        const sig = req.headers['paymongo-signature']; 
-        const payload = JSON.stringify(req.body); 
+        const sig = req.headers['paymongo-signature'];  // PayMongo's signature from the header
+        const payload = JSON.stringify(req.body);  // The body of the webhook request
         
-        // Validate the signature
+        // Validate the webhook signature
         const hmac = crypto.createHmac('sha256', payMongoApiKey);
         hmac.update(payload);
         const expectedSig = hmac.digest('hex');
@@ -148,10 +145,27 @@ exports.handleWebhook = async (req, res) => {
             return res.status(400).json({ error: 'Invalid signature' });
         }
 
+        // Extract event and event type from webhook payload
         const event = req.body.data;
         const eventType = event.type;
 
-        // Handle different event types
+        // You can save the full webhook payload (or just the signature, based on your needs)
+        const webhookData = {
+            webhookSignature: sig,
+            webhookPayload: JSON.stringify(req.body)  // Save the full payload, or adjust as needed
+        };
+
+        // Optional: Save the signature and payload to a specific payment entry if you want to link it
+        // Assuming the event contains a payment ID, you can save the webhook details to the related payment
+        if (eventType === 'payment.paid' || eventType === 'payment.failed') {
+            const paymentId = event.data.id;
+            await PaymentModel.updateOne(
+                { PayMongoId: paymentId },
+                { $set: { webhook: webhookData } } // Save the webhook signature and payload to the payment
+            );
+        }
+
+        // Handle different events
         switch (eventType) {
             case 'source.chargeable':
                 await handleSourceChargeable(event);
@@ -166,7 +180,7 @@ exports.handleWebhook = async (req, res) => {
                 console.log(`Unhandled event type: ${eventType}`);
         }
 
-        // Respond to PayMongo to acknowledge receipt
+        // Respond to acknowledge receipt of the webhook
         return res.status(200).send('Webhook received successfully');
     } catch (error) {
         console.error(error);
@@ -174,13 +188,11 @@ exports.handleWebhook = async (req, res) => {
     }
 };
 
-// Handle a chargeable source event (when the source is ready to be charged)
 const handleSourceChargeable = async (event) => {
     const sourceId = event.data.id;
-    const amount = event.data.attributes.amount / 100; // Convert amount from cents to PHP
+    const amount = event.data.attributes.amount / 100;  // Convert to proper amount (PayMongo sends amount in cents)
     const status = 'Chargeable';
 
-    // Optionally, save the source and amount in the database
     const paymentData = {
         SourceId: sourceId,
         Amount: amount,
@@ -193,23 +205,19 @@ const handleSourceChargeable = async (event) => {
     console.log(`Source ${sourceId} is chargeable. Amount: PHP ${amount}`);
 };
 
-// Handle a successful payment event
 const handlePaymentPaid = async (event) => {
     const paymentId = event.data.id;
     const status = 'Successful';
 
-    // Update the payment status in your database
     await PaymentModel.updateOne({ PayMongoId: paymentId }, { Status: status });
 
     console.log(`Payment ${paymentId} was successful.`);
 };
 
-// Handle a failed payment event
 const handlePaymentFailed = async (event) => {
     const paymentId = event.data.id;
     const status = 'Failed';
 
-    // Update the payment status in your database
     await PaymentModel.updateOne({ PayMongoId: paymentId }, { Status: status });
 
     console.log(`Payment ${paymentId} failed.`);
