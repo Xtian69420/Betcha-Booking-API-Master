@@ -54,10 +54,19 @@ exports.addUnit = (req, res) => {
       console.error('Multer error:', err);
       return res.status(500).json({ error: 'File upload failed', details: err.message });
     }
-    console.log('Files:', req.files);
-    console.log('Body:', req.body);    
 
-    const { unitName, location, description, inclusion, unitPrice, isAvailable, maxPax, pricePerPax } = req.body;
+    const { 
+      unitName, 
+      location, 
+      description, 
+      amenities, 
+      otherAmenities, 
+      unitPrice, 
+      isAvailable, 
+      maxPax, 
+      pricePerPax 
+    } = req.body;
+
     const unitImages = req.files;
 
     try {
@@ -83,7 +92,8 @@ exports.addUnit = (req, res) => {
         unitName,
         location,
         description,
-        inclusion,
+        amenities: JSON.parse(amenities || "{}"),
+        otherAmenities,
         unitPrice,
         isAvailable,
         maxPax,
@@ -129,13 +139,12 @@ exports.editUnit = (req, res) => {
       return res.status(500).json({ error: 'File upload failed', details: err.message });
     }
 
-    const { unitName, location, description, inclusion, unitPrice, isAvailable, maxPax, pricePerPax } = req.body;
+    const updates = req.body; // Dynamically use provided fields
     const unitImages = req.files;
 
     try {
-      let updatedImages = [];
       if (unitImages && unitImages.length > 0) {
-        updatedImages = await Promise.all(
+        const uploadedImages = await Promise.all(
           unitImages.map(async (image) => {
             const uploadedFile = await uploadToGoogleDrive(
               image.buffer,
@@ -152,24 +161,18 @@ exports.editUnit = (req, res) => {
             };
           })
         );
+        updates.UnitImages = uploadedImages; 
       }
 
-      const updatedData = {
-        unitName,
-        location,
-        description,
-        inclusion,
-        unitPrice,
-        isAvailable,
-        maxPax,
-        pricePerPax,
-      };
-
-      if (updatedImages.length > 0) {
-        updatedData.UnitImages = updatedImages; 
+      if (updates.amenities) {
+        updates.amenities = JSON.parse(updates.amenities);
       }
 
-      const updatedUnit = await Unit.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+      const updatedUnit = await Unit.findByIdAndUpdate(req.params.id, updates, {
+        new: true, 
+        runValidators: true, 
+      });
+
       if (!updatedUnit) {
         return res.status(404).json({ error: 'Unit not found' });
       }
@@ -183,6 +186,7 @@ exports.editUnit = (req, res) => {
     }
   });
 };
+
 
 exports.deleteUnit = async (req, res) => {
   try {

@@ -8,7 +8,7 @@ const ImageSchema = new mongoose.Schema({
 });
 
 const UnitSchema = new mongoose.Schema({
-    Top: { type: Number, required: true, min: 1 },
+    Top: { type: Number, required: false, min: 1 },
     unitName: { type: String, required: true, unique: true },
     location: { type: String, required: true },
     description: { type: String, default: "" },
