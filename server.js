@@ -9,6 +9,7 @@ const unitController = require('./controllers/unitController');
 const adminController = require('./controllers/adminController');
 const superAdminController = require('./controllers/superAdminController');
 const notificationController = require('./controllers/notificationController');
+const bookingController = require('./controllers/bookingController');
 
 const app = express();
 app.use(bodyParser.json());
@@ -83,11 +84,14 @@ app.get('/getAllSuperAdmin', superAdminController.getAllSuperAdmin);
 app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
 
 // Bookings_Routes
-    // post (/createBooking)
-    // put (/editBooking)
-    // get (/getAllBookStatusSuccess)
-    // get (/getAllBookStatusPending)
-    // get (/getAllBookings/:userId)
+app.post('/book', bookingController.Book);
+app.put('/edit-date', bookingController.EditDate);
+app.put('/edit-status', bookingController.EditStatus);
+app.get('/bookings/unit/:unitId', bookingController.getBookingUnit);
+app.get('/booking/:reference', bookingController.getOneBooking);
+app.get('/bookings', bookingController.getAllBooking);
+app.delete('/booking/:reference', bookingController.deleteBooking);
+app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit);
 
 // TopUnit_Routes
     // get (/getAnualTopUnits)
