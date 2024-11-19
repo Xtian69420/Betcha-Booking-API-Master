@@ -44,6 +44,10 @@ app.get('/ping', (req, res) => {
   res.status(200).send('Server is alive!');
 });
 
+app.get('/', (req, res) => {
+  res.status(200).send('Server is alive!');
+});
+
 // User_Routes
 app.post('/Register', userController.registerUser);
 app.post('/Login', userController.loginUser);

@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
 const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2';
+const payMongoWebhookKey = 'whsk_RhMPLSuoYNPGd93TWgECApas';
 
 const generatePaymentLink = async (amount, description) => {
     const response = await fetch(payMongoApiUrl, {
@@ -133,14 +134,15 @@ exports.getAllPaymentsByUnit = async (req, res) => {
 
 exports.handleWebhook = async (req, res) => {
     try {
-
         const sig = req.headers['paymongo-signature']; 
         const payload = JSON.stringify(req.body); 
 
-        const hmac = crypto.createHmac('sha256', payMongoApiKey);
+        // Use the correct webhook secret key to calculate the HMAC
+        const hmac = crypto.createHmac('sha256', payMongoWebhookKey);  // Use webhook key here
         hmac.update(payload);
         const expectedSig = hmac.digest('hex');
 
+        // Compare the computed signature with the one from the headers
         if (sig !== expectedSig) {
             return res.status(400).json({ error: 'Invalid signature' });
         }
@@ -166,18 +168,21 @@ exports.handleWebhook = async (req, res) => {
     }
 };
 
-const handlePaymentPaid = async (event) => {
-    const paymentId = event.data.id; 
-    const status = 'Successful'; 
-    const mop = 'PayMongo'; 
 
-    await PaymentModel.updateOne(
+const handlePaymentPaid = async (event) => {
+    const paymentId = event.data.id;
+    const status = 'Successful';
+    const mop = 'PayMongo';
+
+    console.log(`Payment ${paymentId} was successful. Updating status to ${status}.`);
+
+    const result = await PaymentModel.updateOne(
         { PayMongoId: paymentId },
         { $set: { Status: status, Mop: mop } }
     );
-
-    console.log(`Payment ${paymentId} was successful.`);
+    console.log('Update result:', result); 
 };
+
 
 const handlePaymentFailed = async (event) => {
     const paymentId = event.data.id;
