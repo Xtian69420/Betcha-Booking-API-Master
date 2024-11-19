@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const initializeCounter = async () => {
+/*const initializeCounter = async () => {
     try {
         const existingCounter = await CounterModel.findOne({ collectionName: 'bookings' });
 
@@ -14,7 +14,7 @@ const initializeCounter = async () => {
         console.error("Error initializing counter:", error);
     }
 };
-initializeCounter();
+initializeCounter();*/
 
 const BookingSchema = mongoose.Schema({
     Reference: { type: String, required: true },
