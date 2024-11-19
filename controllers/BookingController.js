@@ -74,7 +74,6 @@ exports.Book = async (req, res) => {
     }
 };
 
-
 exports.EditDate = async (req, res) => {
     try {
         const { reference, CheckIn, CheckOut } = req.body;

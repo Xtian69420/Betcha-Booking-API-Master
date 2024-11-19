@@ -2,7 +2,7 @@ const PaymentModel = require('../collection/Payment');
 const fetch = require('node-fetch');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
-const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; // Replace with your actual PayMongo API key
+const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; 
 
 const generatePaymentLink = async (amount, description) => {
     const response = await fetch(payMongoApiUrl, {
@@ -15,7 +15,7 @@ const generatePaymentLink = async (amount, description) => {
         body: JSON.stringify({
             data: {
                 attributes: {
-                    amount: amount * 100,  // PayMongo expects the amount in cents
+                    amount: amount * 100, 
                     description: description,
                     remarks: 'Payment',
                 },
@@ -26,7 +26,6 @@ const generatePaymentLink = async (amount, description) => {
     return response.json();
 };
 
-// Endpoint to create a reservation payment link
 exports.PaymentReservation = async (req, res) => {
     const { amount, userId, unitId } = req.body;
 
@@ -36,16 +35,15 @@ exports.PaymentReservation = async (req, res) => {
         if (apiResponse.data) {
             const paymentData = {
                 Date: new Date().toISOString(),
-                Mop: 'Pending',  // Payment method (initially set to 'Pending')
+                Mop: 'Pending',  
                 UserId: userId,
                 UnitId: unitId,
                 Amount: amount,
                 Description: 'Reservation',
-                Status: 'Pending',  // Status will be updated later
+                Status: 'Pending',  
                 PayMongoLink: apiResponse.data.attributes.checkout_url, 
             };
 
-            // Save payment details to MongoDB
             const newPayment = new PaymentModel(paymentData);
             await newPayment.save();
 
@@ -63,7 +61,6 @@ exports.PaymentReservation = async (req, res) => {
     }
 };
 
-// Endpoint to create a full payment link
 exports.FullPayment = async (req, res) => {
     const { amount, userId, unitId } = req.body;
 
@@ -82,7 +79,6 @@ exports.FullPayment = async (req, res) => {
                 PayMongoLink: apiResponse.data.id, 
             };
 
-            // Save payment details to MongoDB
             const newPayment = new PaymentModel(paymentData);
             await newPayment.save();
 
@@ -101,7 +97,6 @@ exports.FullPayment = async (req, res) => {
 };
 
 
-// Fetch payment details from PayMongo using paymentId
 const fetchPaymentDetails = async (paymentId) => {
     const response = await fetch(`https://api.paymongo.com/v1/payments/${paymentId}`, {
         method: 'GET',
@@ -178,7 +173,6 @@ exports.getAllPayments = async (req, res) => {
     }
 };
 
-// Fetch payments by user
 exports.getAllPaymentsByUser = async (req, res) => {
     const { userId } = req.params;
 
@@ -191,7 +185,6 @@ exports.getAllPaymentsByUser = async (req, res) => {
     }
 };
 
-// Fetch payments by unit
 exports.getAllPaymentsByUnit = async (req, res) => {
     const { unitId } = req.params;
 
