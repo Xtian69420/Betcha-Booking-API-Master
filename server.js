@@ -123,6 +123,6 @@ app.delete ('/notif/:notifId', notificationController.deleteNotif)
 app.post('/payment/reservation', paymentController.PaymentReservation);
 app.post('/payment/full', paymentController.FullPayment);
 app.get('/payments', paymentController.getAllPayments);
+app.get('/getPaymentDetails/:linkId', paymentController.getPaymentDetails);
 app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
-app.post('/payment/webhook', paymentController.handleWebhook);
