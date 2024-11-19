@@ -110,3 +110,10 @@ app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit)
 // ID_Confirmation_Routes
     // same as app.get('/user/:userId', userController.getUserById);
     // same as app.put('/updateUser/:userId', userController.updateUser);
+
+// OTP
+  // get OTP
+  // Post ConfirmOTP
+
+// Payment
+  // post payment
