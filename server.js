@@ -9,6 +9,7 @@ const unitController = require('./controllers/unitController');
 const adminController = require('./controllers/adminController');
 const superAdminController = require('./controllers/superAdminController');
 const notificationController = require('./controllers/notificationController');
+// bookingController
 const bookingController = require('./controllers/bookingController');
 const paymentController = require('./controllers/paymentController');
 
