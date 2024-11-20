@@ -129,7 +129,7 @@ app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
 
 app.use(
-  '/payments/webhook', // Only for webhook route
+  '/payments/webhook', // Only apply this middleware to the webhook route
   bodyParser.json({
       verify: (req, res, buf) => {
           req.rawBody = buf.toString(); // Store raw body for signature verification

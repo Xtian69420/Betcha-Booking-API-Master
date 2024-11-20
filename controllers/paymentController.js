@@ -208,20 +208,12 @@ exports.Webhook = async (req, res) => {
     const signature = req.headers['paymongo-signature'];
 
     try {
-        console.log('Webhook payload:', req.body);
-
         if (!req.rawBody) {
             console.error('Raw body is undefined.');
             return res.status(400).send('Raw body is required for signature verification');
         }
 
-        // Compute HMAC using raw body
         const hmac = crypto.createHmac('sha256', webhookSecret).update(req.rawBody).digest('hex');
-
-        console.log('PayMongo Signature:', signature);
-        console.log('Computed HMAC:', hmac);
-
-        // Extract the signature from the header
         const signatureParts = signature.split(',');
         const tePart = signatureParts.find((part) => part.startsWith('te=')).split('=')[1];
 
@@ -232,30 +224,37 @@ exports.Webhook = async (req, res) => {
 
         const { data, type } = req.body.data.attributes;
 
-        // Handle event types
         if (type === 'payment.paid') {
-            console.log('Processing payment.paid event.');
+            const linkId = data.attributes.link_id; // Extract the link ID
             const paymentId = data.id;
-            const status = 'Successful';
             const mop = data.attributes.source.type;
 
             const updatedPayment = await PaymentModel.findOneAndUpdate(
-                { PaymentId: paymentId },
-                { $set: { Status: status, Mop: mop } },
+                { PayMongoLink: linkId }, // Match based on PayMongoLink (linkId)
+                {
+                    $set: {
+                        Status: 'Successful',
+                        Mop: mop,
+                        PaymentId: paymentId, // Save the PaymentId after the payment is made
+                    },
+                },
                 { new: true }
             );
 
-            console.log('Payment updated successfully:', updatedPayment);
+            if (updatedPayment) {
+                console.log('Payment updated successfully:', updatedPayment);
+            } else {
+                console.error('No matching payment record found for the link ID:', linkId);
+            }
         } else if (type === 'payment.failed') {
-            console.log('Processing payment.failed event.');
-            const paymentId = data.id;
+            const linkId = data.attributes.link_id;
 
             await PaymentModel.findOneAndUpdate(
-                { PaymentId: paymentId },
+                { PayMongoLink: linkId },
                 { $set: { Status: 'Failed' } }
             );
 
-            console.log(`Payment ${paymentId} failed.`);
+            console.log(`Payment failed for link ID: ${linkId}`);
         } else {
             console.log(`Unhandled event type: ${type}`);
         }
