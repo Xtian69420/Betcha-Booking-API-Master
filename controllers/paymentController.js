@@ -202,47 +202,67 @@ exports.getAllPaymentsByUnit = async (req, res) => {
 };
 
 
-const crypto = require('crypto');
-const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
-
 exports.Webhook = async (req, res) => {
-    try {
-        console.log('Incoming raw body:', req.rawBody);
-        const signature = req.headers['paymongo-signature'];
-        console.log('PayMongo Signature Header:', signature);
+    const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
 
+    try {
+        // Log the raw body for debugging
+        console.log('Incoming raw body:', req.rawBody?.toString());
+
+        // Extract PayMongo signature from headers
+        const signatureHeader = req.headers['paymongo-signature'];
+        if (!signatureHeader) {
+            console.error('Signature header missing.');
+            return res.status(400).send('Bad Request: Missing signature header');
+        }
+        console.log('PayMongo Signature Header:', signatureHeader);
+
+        // Validate raw body
         if (!req.rawBody) {
-            console.error('Raw body is undefined');
-            return res.status(400).send('Raw body is missing');
+            console.error('Raw body is undefined.');
+            return res.status(400).send('Bad Request: Missing raw body');
         }
 
-        const hmac = crypto.createHmac('sha256', webhookSecret)
-            .update(req.rawBody) // Ensure rawBody is being used
+        // Compute the HMAC using the webhook secret and the raw body
+        const computedHmac = crypto
+            .createHmac('sha256', webhookSecret)
+            .update(req.rawBody)
             .digest('hex');
 
-        console.log('Computed HMAC:', hmac);
+        console.log('Computed HMAC:', computedHmac);
 
-        const signatureParts = signature.split(',');
-        const tePart = signatureParts.find(part => part.startsWith('te=')).split('=')[1];
+        // Extract the `te` signature from the PayMongo signature header
+        const signatureParts = signatureHeader.split(',');
+        const tePart = signatureParts.find(part => part.startsWith('te='));
+        if (!tePart) {
+            console.error('te part missing in signature header.');
+            return res.status(400).send('Bad Request: Invalid signature format');
+        }
+        const paymongoSignature = tePart.split('=')[1];
+        console.log('PayMongo Signature:', paymongoSignature);
 
-        console.log('PayMongo Signature:', tePart);
-
-        if (hmac !== tePart) {
-            console.log('Invalid signature. Rejecting webhook.');
+        // Compare the computed HMAC with the PayMongo signature
+        if (computedHmac !== paymongoSignature) {
+            console.error('Signature mismatch. Invalid signature.');
             return res.status(401).send('Unauthorized: Invalid signature');
         }
 
-        const { data } = req.body.data.attributes;
-        console.log('Webhook payload:', data);
+        // Parse the payload and handle events
+        const payload = JSON.parse(req.rawBody.toString());
+        const event = payload.data.attributes.type;
+        console.log('Webhook Event Type:', event);
 
-        if (data.type === 'payment.paid') {
-            console.log('Processing payment.paid event.');
-            // Add your payment processing logic
-        } else if (data.type === 'payment.failed') {
-            console.log('Processing payment.failed event.');
-            // Add your payment failed logic
-        } else {
-            console.log(`Unhandled event type: ${data.type}`);
+        switch (event) {
+            case 'payment.paid':
+                console.log('Processing payment.paid event.');
+                // Handle successful payment logic
+                break;
+            case 'payment.failed':
+                console.log('Processing payment.failed event.');
+                // Handle failed payment logic
+                break;
+            default:
+                console.warn(`Unhandled event type: ${event}`);
         }
 
         res.status(200).send('Webhook processed successfully');

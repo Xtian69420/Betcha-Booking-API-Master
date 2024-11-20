@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('./db'); 
 const path = require('path');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const userController = require('./controllers/userController');
@@ -128,12 +129,13 @@ app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
 
 app.use(
-  'payments/webhook',
-  express.raw({
-    type: 'application/json',
+  '/payments/webhook',
+  bodyParser.raw({
+    type: 'application/json', 
     verify: (req, res, buf) => {
-      req.rawBody = buf.toString(); 
+      req.rawBody = buf; 
     },
   })
 );
+
 app.post('/payments/webhook', paymentController.Webhook);
