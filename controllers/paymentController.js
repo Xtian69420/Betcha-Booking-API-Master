@@ -203,65 +203,75 @@ exports.getAllPaymentsByUnit = async (req, res) => {
     }
 };
 
+exports.webhook = async (req, res) => {
+    const signature = req.headers['x-paymongo-signature'];  // Get the signature from the headers
+    const body = JSON.stringify(req.body);  // Get the raw body data
 
-exports.Webhook = async (req, res) => {
-    const signature = req.headers['paymongo-signature'];
+    // Verify the signature
+    const expectedSignature = crypto
+        .createHmac('sha256', webhookSecret)
+        .update(body)
+        .digest('hex');
+
+    if (signature !== expectedSignature) {
+        return res.status(400).json({ error: 'Invalid signature' });
+    }
+
+    const event = req.body.data;
 
     try {
-        if (!req.rawBody) {
-            console.error('Raw body is undefined.');
-            return res.status(400).send('Raw body is required for signature verification');
-        }
+        // Handle different event types
+        switch (event.type) {
+            case 'payment.paid':
+                // Payment was successful
+                const paymentData = event.attributes;
+                const paymentId = paymentData.id;
+                const status = paymentData.status;
 
-        const hmac = crypto.createHmac('sha256', webhookSecret).update(req.rawBody).digest('hex');
-        const signatureParts = signature.split(',');
-        const tePart = signatureParts.find((part) => part.startsWith('te=')).split('=')[1];
-
-        if (hmac !== tePart) {
-            console.log('Invalid signature. Rejecting webhook.');
-            return res.status(401).send('Unauthorized: Invalid signature');
-        }
-
-        const { data, type } = req.body.data.attributes;
-
-        if (type === 'payment.paid') {
-            const linkId = data.attributes.link_id; // Extract the link ID
-            const paymentId = data.id;
-            const mop = data.attributes.source.type;
-
-            const updatedPayment = await PaymentModel.findOneAndUpdate(
-                { PayMongoLink: linkId }, // Match based on PayMongoLink (linkId)
-                {
-                    $set: {
-                        Status: 'Successful',
-                        Mop: mop,
-                        PaymentId: paymentId, // Save the PaymentId after the payment is made
+                // Update payment record in your database
+                const updatedPayment = await PaymentModel.findOneAndUpdate(
+                    { PayMongoLink: paymentData.link_id },
+                    {
+                        $set: {
+                            Status: status === 'paid' ? 'Successful' : 'Failed',
+                            PaymentId: paymentId,
+                        },
                     },
-                },
-                { new: true }
-            );
+                    { new: true }
+                );
 
-            if (updatedPayment) {
-                console.log('Payment updated successfully:', updatedPayment);
-            } else {
-                console.error('No matching payment record found for the link ID:', linkId);
-            }
-        } else if (type === 'payment.failed') {
-            const linkId = data.attributes.link_id;
+                return res.status(200).json({
+                    message: 'Payment processed successfully.',
+                    paymentDetails: updatedPayment,
+                });
 
-            await PaymentModel.findOneAndUpdate(
-                { PayMongoLink: linkId },
-                { $set: { Status: 'Failed' } }
-            );
+            case 'payment.failed':
+                // Payment failed
+                const failedPaymentData = event.attributes;
+                const failedPaymentId = failedPaymentData.id;
 
-            console.log(`Payment failed for link ID: ${linkId}`);
-        } else {
-            console.log(`Unhandled event type: ${type}`);
+                // Optionally, update the payment status in your database as failed
+                await PaymentModel.findOneAndUpdate(
+                    { PayMongoLink: failedPaymentData.link_id },
+                    {
+                        $set: {
+                            Status: 'Failed',
+                            PaymentId: failedPaymentId,
+                        },
+                    }
+                );
+
+                return res.status(200).json({
+                    message: 'Payment failed processed.',
+                });
+
+            // Add other event types you want to handle
+
+            default:
+                return res.status(400).json({ error: 'Unknown event type' });
         }
-
-        res.status(200).send('Webhook processed successfully');
     } catch (error) {
-        console.error('Error handling webhook:', error);
-        res.status(500).send('Internal Server Error');
+        console.error('Error processing webhook:', error);
+        return res.status(500).json({ error: 'Failed to process webhook' });
     }
 };
