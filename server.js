@@ -130,11 +130,19 @@ app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
 
 app.use(
   '/payments/webhook', // Only apply this middleware to the webhook route
-  bodyParser.json({
-      verify: (req, res, buf) => {
-          req.rawBody = buf.toString(); // Store raw body for signature verification
-      },
-  })
+  (req, res, next) => {
+    req.rawBody = '';  // Initialize the rawBody
+    req.on('data', chunk => {
+      req.rawBody += chunk;  // Concatenate data chunks
+    });
+    req.on('end', () => {
+      next();  // Proceed to the next middleware after capturing the raw body
+    });
+  },
+  bodyParser.json() // Then apply the bodyParser to parse the JSON body
 );
+
+app.post('/payments/webhook', paymentController.Webhook);
+
 
 app.post('/payments/webhook', paymentController.Webhook);
