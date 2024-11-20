@@ -99,11 +99,6 @@ app.get('/bookings', bookingController.getAllBooking);
 app.delete('/booking/:reference', bookingController.deleteBooking);
 app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit);
 
-// TopUnit_Routes
-    // get (/getAnualTopUnits)
-    // get (/getMonthlyEarnings(Weeks)) from today to last 4 weeks
-    // get (/getAnualEarnings(Months)) from today to last 12 months
-
 // Notification_Routes
 app.post ('/notif', notificationController.CreateNotif);
 app.get ('/allNottif/', notificationController.getAllNotif);
@@ -113,18 +108,26 @@ app.get ('/AllNotifInSuper/:superAdminId', notificationController.getAllNotifSup
 app.get ('/Notif/:notifid', notificationController.getSpecificNtoif);
 app.delete ('/notif/:notifId', notificationController.deleteNotif)
 
-// ID_Confirmation_Routes
-    // same as app.get('/user/:userId', userController.getUserById);
-    // same as app.put('/updateUser/:userId', userController.updateUser);
-
-// OTP
-  // get OTP
-  // Post ConfirmOTP
-
 app.post('/payment/reservation', paymentController.PaymentReservation);
 app.post('/payment/full', paymentController.FullPayment);
 app.get('/payments', paymentController.getAllPayments);
 app.get('/getPaymentDetails/:linkId', paymentController.getPaymentDetails);
 app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
-app.post('/payments/Paywebhook', paymentController.webhook);
+
+// Audit_Routes
+  // Post Audit
+  // Get AllAudit
+
+// TopUnit_Routes
+    // get (/getMonth(week))
+    // get (/get6Months(Months)) 
+    // get (/getAnualEarnings(Months)) 
+
+// ID_Confirmation_Routes
+    // same as app.get('/user/:userId', userController.getUserById);
+    // same as app.put('/updateUser/:userId', userController.updateUser);
+
+// OTP
+      // get OTP
+      // Post ConfirmOTP
