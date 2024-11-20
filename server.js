@@ -128,11 +128,12 @@ app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
 
 app.use(
+  'payments/webhook',
   express.raw({
-      type: 'application/json', 
-      verify: (req, res, buf) => {
-          req.rawBody = buf.toString(); 
-      },
+    type: 'application/json',
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString(); 
+    },
   })
 );
 app.post('/payments/webhook', paymentController.Webhook);
