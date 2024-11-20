@@ -141,6 +141,4 @@ app.use(
 
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
-
-const paymentController = require('./controllers/paymentController');
 app.post('/payments/webhook', paymentController.Webhook);
