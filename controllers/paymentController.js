@@ -1,10 +1,8 @@
 const PaymentModel = require('../collection/Payment');
 const fetch = require('node-fetch');
-const crypto = require('crypto');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
 const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; 
-const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
 
 const generatePaymentLink = async (amount, description) => {
     const response = await fetch(payMongoApiUrl, {
