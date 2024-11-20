@@ -126,3 +126,4 @@ app.get('/payments', paymentController.getAllPayments);
 app.get('/getPaymentDetails/:linkId', paymentController.getPaymentDetails);
 app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
+app.post('/payments/webhook', paymentController.Webhook);

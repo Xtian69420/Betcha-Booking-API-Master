@@ -112,6 +112,7 @@ exports.getPaymentDetails = async (req, res) => {
     const { linkId } = req.params;
 
     try {
+        // Fetch details of the payment link
         const linkResponse = await fetch(`https://api.paymongo.com/v1/links/${linkId}`, {
             method: 'GET',
             headers: {
@@ -122,44 +123,47 @@ exports.getPaymentDetails = async (req, res) => {
 
         const linkDetails = await linkResponse.json();
 
-        if (linkDetails.data && linkDetails.data.attributes.payments.length > 0) {
-            const paymentId = linkDetails.data.attributes.payments[0].data.id;
+        // Ensure payments exist for this link
+        const payments = linkDetails?.data?.attributes?.payments || [];
+        if (payments.length === 0) {
+            return res.status(404).json({ error: 'No payments associated with this link.' });
+        }
 
-            const paymentDetails = await fetchPaymentDetails(paymentId);
+        // Fetch the first payment's details
+        const paymentId = payments[0].id;
+        const paymentDetails = await fetchPaymentDetails(paymentId);
 
-            if (paymentDetails.data) {
-                const status = paymentDetails.data.attributes.status;
-                const mop = paymentDetails.data.attributes.source.type; 
+        if (paymentDetails.data) {
+            const status = paymentDetails.data.attributes.status;
+            const mop = paymentDetails.data.attributes.source.type;
 
-                const updatedPayment = await PaymentModel.findOneAndUpdate(
-                    { PayMongoId: linkId },  
-                    { 
-                        $set: { 
-                            Status: status === 'paid' ? 'Successful' : 'Failed', 
-                            Mop: mop, 
-                            PaymentId: paymentId, 
-                        }
+            // Update payment record in the database
+            const updatedPayment = await PaymentModel.findOneAndUpdate(
+                { PayMongoLink: linkId }, // Match link ID
+                {
+                    $set: {
+                        Status: status === 'paid' ? 'Successful' : 'Failed',
+                        Mop: mop,
+                        PaymentId: paymentId,
                     },
-                    { new: true }
-                );
+                },
+                { new: true }
+            );
 
-                if (updatedPayment) {
-                    res.status(200).json({
-                        message: 'Payment details retrieved and updated successfully.',
-                        paymentDetails: updatedPayment,
-                    });
-                } else {
-                    res.status(404).json({ error: 'Payment document not found in the database.' });
-                }
+            if (updatedPayment) {
+                return res.status(200).json({
+                    message: 'Payment details retrieved and updated successfully.',
+                    paymentDetails: updatedPayment,
+                });
             } else {
-                res.status(404).json({ error: 'Payment details not found' });
+                return res.status(404).json({ error: 'Payment record not found in the database.' });
             }
         } else {
-            res.status(400).json({  });
+            return res.status(404).json({ error: 'Payment details not found.' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Failed to fetch payment details' });
+        res.status(500).json({ error: 'Failed to fetch payment details.' });
     }
 };
 
@@ -194,5 +198,49 @@ exports.getAllPaymentsByUnit = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch unit payments' });
+    }
+};
+
+
+exports.Webhook = async (req, res) => {
+    const signature = req.headers['paymongo-signature'];
+
+    try {
+        const rawBody = JSON.stringify(req.body);
+        const hmac = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+
+        if (hmac !== signature) {
+            return res.status(401).send('Unauthorized: Invalid signature');
+        }
+
+        const { data, type } = req.body;
+
+        if (type === 'payment.paid') {
+            const paymentId = data.id;
+            const status = 'Successful';
+            const mop = data.attributes.source.type;
+
+            const updatedPayment = await PaymentModel.findOneAndUpdate(
+                { PaymentId: paymentId },
+                { $set: { Status: status, Mop: mop } },
+                { new: true }
+            );
+
+            console.log('Payment updated successfully:', updatedPayment);
+        } else if (type === 'payment.failed') {
+            const paymentId = data.id;
+
+            await PaymentModel.findOneAndUpdate(
+                { PaymentId: paymentId },
+                { $set: { Status: 'Failed' } }
+            );
+
+            console.log(`Payment ${paymentId} failed.`);
+        }
+
+        res.status(200).send('Webhook processed successfully');
+    } catch (error) {
+        console.error('Error handling webhook:', error);
+        res.status(500).send('Internal Server Error');
     }
 };
