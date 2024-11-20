@@ -127,18 +127,4 @@ app.get('/payments', paymentController.getAllPayments);
 app.get('/getPaymentDetails/:linkId', paymentController.getPaymentDetails);
 app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
-
-
-app.use(
-    '/payments/webhook',
-    bodyParser.raw({
-        type: 'application/json', 
-        verify: (req, res, buf) => {
-            req.rawBody = buf; 
-        },
-    })
-);
-
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
 app.post('/payments/webhook', paymentController.Webhook);

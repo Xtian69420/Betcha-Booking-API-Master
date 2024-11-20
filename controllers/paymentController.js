@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
 const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; 
+const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
 
 const generatePaymentLink = async (amount, description) => {
     const response = await fetch(payMongoApiUrl, {
@@ -203,56 +204,51 @@ exports.getAllPaymentsByUnit = async (req, res) => {
 
 
 exports.Webhook = async (req, res) => {
-    const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
+    const signature = req.headers['paymongo-signature'];
 
     try {
-        // Ensure rawBody is captured
-        if (!req.rawBody) {
-            console.error('Raw body is undefined.');
-            return res.status(400).send('Bad Request: Missing raw body');
-        }
+        // Log the raw payload
+        console.log('Webhook payload:', req.body);
 
-        // Log raw body for debugging
-        console.log('Incoming raw body:', req.rawBody.toString());
+        const rawBody = JSON.stringify(req.body);
+        const hmac = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
 
-        // Validate signature
-        const signatureHeader = req.headers['paymongo-signature'];
-        if (!signatureHeader) {
-            console.error('Signature header missing.');
-            return res.status(400).send('Bad Request: Missing signature header');
-        }
+        // Log the signature comparison
+        console.log('PayMongo Signature:', signature);
+        console.log('Computed HMAC:', hmac);
 
-        console.log('PayMongo Signature Header:', signatureHeader);
-
-        const computedHmac = crypto
-            .createHmac('sha256', webhookSecret)
-            .update(req.rawBody)
-            .digest('hex');
-
-        const signatureParts = signatureHeader.split(',');
-        const tePart = signatureParts.find(part => part.startsWith('te=')).split('=')[1];
-
-        if (computedHmac !== tePart) {
-            console.error('Signature mismatch. Invalid signature.');
+        if (hmac !== signature) {
+            console.log('Invalid signature. Rejecting webhook.');
             return res.status(401).send('Unauthorized: Invalid signature');
         }
 
-        // Process the event
-        const payload = JSON.parse(req.rawBody.toString());
-        console.log('Webhook payload:', payload);
+        const { data, type } = req.body.data.attributes;
 
-        const eventType = payload.data.attributes.type;
-        console.log('Webhook Event Type:', eventType);
+        if (type === 'payment.paid') {
+            console.log('Processing payment.paid event.');
+            const paymentId = data.id;
+            const status = 'Successful';
+            const mop = data.attributes.source.type;
 
-        switch (eventType) {
-            case 'payment.paid':
-                console.log('Processing payment.paid event.');
-                break;
-            case 'payment.failed':
-                console.log('Processing payment.failed event.');
-                break;
-            default:
-                console.warn(`Unhandled event type: ${eventType}`);
+            const updatedPayment = await PaymentModel.findOneAndUpdate(
+                { PaymentId: paymentId },
+                { $set: { Status: status, Mop: mop } },
+                { new: true }
+            );
+
+            console.log('Payment updated successfully:', updatedPayment);
+        } else if (type === 'payment.failed') {
+            console.log('Processing payment.failed event.');
+            const paymentId = data.id;
+
+            await PaymentModel.findOneAndUpdate(
+                { PaymentId: paymentId },
+                { $set: { Status: 'Failed' } }
+            );
+
+            console.log(`Payment ${paymentId} failed.`);
+        } else {
+            console.log(`Unhandled event type: ${type}`);
         }
 
         res.status(200).send('Webhook processed successfully');
