@@ -207,6 +207,7 @@ const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
 
 exports.Webhook = async (req, res) => {
     try {
+        console.log('Incoming raw body:', req.rawBody);
         const signature = req.headers['paymongo-signature'];
         console.log('PayMongo Signature Header:', signature);
 
