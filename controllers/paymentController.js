@@ -206,21 +206,25 @@ const crypto = require('crypto');
 const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
 
 exports.Webhook = async (req, res) => {
-    const signature = req.headers['paymongo-signature'];
-
     try {
-        // Extract the event signature from the header
+        const signature = req.headers['paymongo-signature'];
+        console.log('PayMongo Signature Header:', signature);
+
+        if (!req.rawBody) {
+            console.error('Raw body is undefined');
+            return res.status(400).send('Raw body is missing');
+        }
+
+        const hmac = crypto.createHmac('sha256', webhookSecret)
+            .update(req.rawBody) // Ensure rawBody is being used
+            .digest('hex');
+
+        console.log('Computed HMAC:', hmac);
+
         const signatureParts = signature.split(',');
         const tePart = signatureParts.find(part => part.startsWith('te=')).split('=')[1];
 
-        // Compute the HMAC using the raw body
-        const hmac = crypto.createHmac('sha256', webhookSecret)
-            .update(req.rawBody)
-            .digest('hex');
-
-        // Compare the computed HMAC with the PayMongo signature
         console.log('PayMongo Signature:', tePart);
-        console.log('Computed HMAC:', hmac);
 
         if (hmac !== tePart) {
             console.log('Invalid signature. Rejecting webhook.');
@@ -228,13 +232,14 @@ exports.Webhook = async (req, res) => {
         }
 
         const { data } = req.body.data.attributes;
+        console.log('Webhook payload:', data);
 
         if (data.type === 'payment.paid') {
             console.log('Processing payment.paid event.');
-            // Your payment processing logic here
+            // Add your payment processing logic
         } else if (data.type === 'payment.failed') {
             console.log('Processing payment.failed event.');
-            // Your payment failed logic here
+            // Add your payment failed logic
         } else {
             console.log(`Unhandled event type: ${data.type}`);
         }
