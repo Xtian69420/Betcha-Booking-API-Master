@@ -208,34 +208,31 @@ exports.Webhook = async (req, res) => {
     const signature = req.headers['paymongo-signature'];
 
     try {
-        // Ensure rawBody is captured
+        console.log('Webhook payload:', req.body);
+
         if (!req.rawBody) {
             console.error('Raw body is undefined.');
-            return res.status(400).send('Bad Request: Missing raw body');
+            return res.status(400).send('Raw body is required for signature verification');
         }
 
-        console.log('Webhook payload:', req.rawBody);
-
-        // Extract 'te' part of the signature
-        const signatureParts = signature.split(',');
-        const tePart = signatureParts.find(part => part.startsWith('te=')).split('=')[1];
-
-        // Compute HMAC
+        // Compute HMAC using raw body
         const hmac = crypto.createHmac('sha256', webhookSecret).update(req.rawBody).digest('hex');
 
-        console.log('PayMongo Signature (te):', tePart);
+        console.log('PayMongo Signature:', signature);
         console.log('Computed HMAC:', hmac);
 
-        // Validate signature
+        // Extract the signature from the header
+        const signatureParts = signature.split(',');
+        const tePart = signatureParts.find((part) => part.startsWith('te=')).split('=')[1];
+
         if (hmac !== tePart) {
-            console.error('Invalid signature. Rejecting webhook.');
+            console.log('Invalid signature. Rejecting webhook.');
             return res.status(401).send('Unauthorized: Invalid signature');
         }
 
-        // Parse the raw body
-        const payload = JSON.parse(req.rawBody);
-        const { data, type } = payload.data.attributes;
+        const { data, type } = req.body.data.attributes;
 
+        // Handle event types
         if (type === 'payment.paid') {
             console.log('Processing payment.paid event.');
             const paymentId = data.id;
@@ -260,7 +257,7 @@ exports.Webhook = async (req, res) => {
 
             console.log(`Payment ${paymentId} failed.`);
         } else {
-            console.warn(`Unhandled event type: ${type}`);
+            console.log(`Unhandled event type: ${type}`);
         }
 
         res.status(200).send('Webhook processed successfully');
