@@ -208,20 +208,33 @@ exports.Webhook = async (req, res) => {
     const signature = req.headers['paymongo-signature'];
 
     try {
-        console.log('Webhook payload:', req.body);
+        // Ensure rawBody is captured
+        if (!req.rawBody) {
+            console.error('Raw body is undefined.');
+            return res.status(400).send('Bad Request: Missing raw body');
+        }
 
-        const rawBody = JSON.stringify(req.body);
-        const hmac = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+        console.log('Webhook payload:', req.rawBody);
 
-        console.log('PayMongo Signature:', signature);
+        // Extract 'te' part of the signature
+        const signatureParts = signature.split(',');
+        const tePart = signatureParts.find(part => part.startsWith('te=')).split('=')[1];
+
+        // Compute HMAC
+        const hmac = crypto.createHmac('sha256', webhookSecret).update(req.rawBody).digest('hex');
+
+        console.log('PayMongo Signature (te):', tePart);
         console.log('Computed HMAC:', hmac);
 
-        if (hmac !== signature) {
-            console.log('Invalid signature. Rejecting webhook.');
+        // Validate signature
+        if (hmac !== tePart) {
+            console.error('Invalid signature. Rejecting webhook.');
             return res.status(401).send('Unauthorized: Invalid signature');
         }
 
-        const { data, type } = req.body.data.attributes;
+        // Parse the raw body
+        const payload = JSON.parse(req.rawBody);
+        const { data, type } = payload.data.attributes;
 
         if (type === 'payment.paid') {
             console.log('Processing payment.paid event.');
@@ -247,7 +260,7 @@ exports.Webhook = async (req, res) => {
 
             console.log(`Payment ${paymentId} failed.`);
         } else {
-            console.log(`Unhandled event type: ${type}`);
+            console.warn(`Unhandled event type: ${type}`);
         }
 
         res.status(200).send('Webhook processed successfully');
