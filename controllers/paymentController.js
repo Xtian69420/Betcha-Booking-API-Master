@@ -206,63 +206,53 @@ exports.Webhook = async (req, res) => {
     const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
 
     try {
-        // Log the raw body for debugging
-        console.log('Incoming raw body:', req.rawBody?.toString());
-
-        // Extract PayMongo signature from headers
-        const signatureHeader = req.headers['paymongo-signature'];
-        if (!signatureHeader) {
-            console.error('Signature header missing.');
-            return res.status(400).send('Bad Request: Missing signature header');
-        }
-        console.log('PayMongo Signature Header:', signatureHeader);
-
-        // Validate raw body
+        // Ensure rawBody is captured
         if (!req.rawBody) {
             console.error('Raw body is undefined.');
             return res.status(400).send('Bad Request: Missing raw body');
         }
 
-        // Compute the HMAC using the webhook secret and the raw body
+        // Log raw body for debugging
+        console.log('Incoming raw body:', req.rawBody.toString());
+
+        // Validate signature
+        const signatureHeader = req.headers['paymongo-signature'];
+        if (!signatureHeader) {
+            console.error('Signature header missing.');
+            return res.status(400).send('Bad Request: Missing signature header');
+        }
+
+        console.log('PayMongo Signature Header:', signatureHeader);
+
         const computedHmac = crypto
             .createHmac('sha256', webhookSecret)
             .update(req.rawBody)
             .digest('hex');
 
-        console.log('Computed HMAC:', computedHmac);
-
-        // Extract the `te` signature from the PayMongo signature header
         const signatureParts = signatureHeader.split(',');
-        const tePart = signatureParts.find(part => part.startsWith('te='));
-        if (!tePart) {
-            console.error('te part missing in signature header.');
-            return res.status(400).send('Bad Request: Invalid signature format');
-        }
-        const paymongoSignature = tePart.split('=')[1];
-        console.log('PayMongo Signature:', paymongoSignature);
+        const tePart = signatureParts.find(part => part.startsWith('te=')).split('=')[1];
 
-        // Compare the computed HMAC with the PayMongo signature
-        if (computedHmac !== paymongoSignature) {
+        if (computedHmac !== tePart) {
             console.error('Signature mismatch. Invalid signature.');
             return res.status(401).send('Unauthorized: Invalid signature');
         }
 
-        // Parse the payload and handle events
+        // Process the event
         const payload = JSON.parse(req.rawBody.toString());
-        const event = payload.data.attributes.type;
-        console.log('Webhook Event Type:', event);
+        console.log('Webhook payload:', payload);
 
-        switch (event) {
+        const eventType = payload.data.attributes.type;
+        console.log('Webhook Event Type:', eventType);
+
+        switch (eventType) {
             case 'payment.paid':
                 console.log('Processing payment.paid event.');
-                // Handle successful payment logic
                 break;
             case 'payment.failed':
                 console.log('Processing payment.failed event.');
-                // Handle failed payment logic
                 break;
             default:
-                console.warn(`Unhandled event type: ${event}`);
+                console.warn(`Unhandled event type: ${eventType}`);
         }
 
         res.status(200).send('Webhook processed successfully');
