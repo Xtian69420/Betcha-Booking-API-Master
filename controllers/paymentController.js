@@ -43,7 +43,8 @@ exports.PaymentReservation = async (req, res) => {
                 Amount: amount,
                 Description: 'Reservation',
                 Status: 'Pending',  
-                PayMongoLink: apiResponse.data.id, 
+                PayMongoLink: apiResponse.data.attributes.checkout_url, 
+                PaymentId: apiResponse.data.id
             };
 
             const newPayment = new PaymentModel(paymentData);
@@ -53,6 +54,7 @@ exports.PaymentReservation = async (req, res) => {
                 message: 'Payment link created successfully.',
                 paymentLink: apiResponse.data.id,
                 paymentDetails: newPayment,
+                PaymentId: apiResponse.data.id
             });
         } else {
             res.status(400).json({ error: 'Failed to create payment link.' });
@@ -78,7 +80,8 @@ exports.FullPayment = async (req, res) => {
                 Amount: amount,
                 Description: 'Full Payment',
                 Status: 'Pending',
-                PayMongoLink: apiResponse.data.id, 
+                PayMongoLink: apiResponse.data.attributes.checkout_url, 
+                PaymentId: apiResponse.data.id
             };
 
             const newPayment = new PaymentModel(paymentData);
@@ -86,8 +89,9 @@ exports.FullPayment = async (req, res) => {
 
             res.status(200).json({
                 message: 'Payment link created successfully.',
-                paymentLink: apiResponse.data.idl,
+                paymentLink: apiResponse.data.attributes.checkout_url,
                 paymentDetails: newPayment,
+                PaymentId: apiResponse.data.id
             });
         } else {
             res.status(400).json({ error: 'Failed to create payment link.' });
