@@ -1,5 +1,6 @@
 const PaymentModel = require('../collection/Payment');
 const fetch = require('node-fetch');
+const crypto = require('crypto');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
 const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; 
@@ -207,19 +208,18 @@ exports.Webhook = async (req, res) => {
     const signature = req.headers['paymongo-signature'];
 
     try {
-        // Validate the webhook signature
         const rawBody = JSON.stringify(req.body);
-        const hmac = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+        console.log('crypto.createHmac:', typeof crypto.createHmac); // Debug
 
+        const hmac = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+        
         if (hmac !== signature) {
             return res.status(401).send('Unauthorized: Invalid signature');
         }
 
-        // Extract the event type and data
         const { data, type } = req.body.data.attributes;
 
         if (type === 'payment.paid') {
-            // Handle payment.paid event
             const paymentId = data.id;
             const status = 'Successful';
             const mop = data.attributes.source.type;
@@ -232,7 +232,6 @@ exports.Webhook = async (req, res) => {
 
             console.log('Payment updated successfully:', updatedPayment);
         } else if (type === 'payment.failed') {
-            // Handle payment.failed event
             const paymentId = data.id;
 
             await PaymentModel.findOneAndUpdate(
@@ -241,9 +240,6 @@ exports.Webhook = async (req, res) => {
             );
 
             console.log(`Payment ${paymentId} failed.`);
-        } else {
-            // Handle unrecognized events
-            console.log(`Unhandled event type: ${type}`);
         }
 
         res.status(200).send('Webhook processed successfully');
