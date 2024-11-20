@@ -43,7 +43,7 @@ exports.PaymentReservation = async (req, res) => {
                 Amount: amount,
                 Description: 'Reservation',
                 Status: 'Pending',  
-                PayMongoLink: apiResponse.data.attributes.checkout_url, 
+                PayMongoLink: apiResponse.data.id, 
             };
 
             const newPayment = new PaymentModel(paymentData);
@@ -86,7 +86,7 @@ exports.FullPayment = async (req, res) => {
 
             res.status(200).json({
                 message: 'Payment link created successfully.',
-                paymentLink: apiResponse.data.attributes.checkout_url,
+                paymentLink: apiResponse.data.idl,
                 paymentDetails: newPayment,
             });
         } else {
