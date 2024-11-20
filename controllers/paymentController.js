@@ -204,52 +204,41 @@ exports.getAllPaymentsByUnit = async (req, res) => {
 };
 
 
+const crypto = require('crypto');
+const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
+
 exports.Webhook = async (req, res) => {
     const signature = req.headers['paymongo-signature'];
 
     try {
-        // Log the raw payload
-        console.log('Webhook payload:', req.body);
+        // Extract the event signature from the header
+        const signatureParts = signature.split(',');
+        const tePart = signatureParts.find(part => part.startsWith('te=')).split('=')[1];
 
-        const rawBody = JSON.stringify(req.body);
-        const hmac = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+        // Compute the HMAC using the raw body
+        const hmac = crypto.createHmac('sha256', webhookSecret)
+            .update(req.rawBody)
+            .digest('hex');
 
-        // Log the signature comparison
-        console.log('PayMongo Signature:', signature);
+        // Compare the computed HMAC with the PayMongo signature
+        console.log('PayMongo Signature:', tePart);
         console.log('Computed HMAC:', hmac);
 
-        if (hmac !== signature) {
+        if (hmac !== tePart) {
             console.log('Invalid signature. Rejecting webhook.');
             return res.status(401).send('Unauthorized: Invalid signature');
         }
 
-        const { data, type } = req.body.data.attributes;
+        const { data } = req.body.data.attributes;
 
-        if (type === 'payment.paid') {
+        if (data.type === 'payment.paid') {
             console.log('Processing payment.paid event.');
-            const paymentId = data.id;
-            const status = 'Successful';
-            const mop = data.attributes.source.type;
-
-            const updatedPayment = await PaymentModel.findOneAndUpdate(
-                { PaymentId: paymentId },
-                { $set: { Status: status, Mop: mop } },
-                { new: true }
-            );
-
-            console.log('Payment updated successfully:', updatedPayment);
-        } else if (type === 'payment.failed') {
+            // Your payment processing logic here
+        } else if (data.type === 'payment.failed') {
             console.log('Processing payment.failed event.');
-            const paymentId = data.id;
-
-            await PaymentModel.findOneAndUpdate(
-                { PaymentId: paymentId },
-                { $set: { Status: 'Failed' } }
-            );
-
-            console.log(`Payment ${paymentId} failed.`);
+            // Your payment failed logic here
         } else {
-            console.log(`Unhandled event type: ${type}`);
+            console.log(`Unhandled event type: ${data.type}`);
         }
 
         res.status(200).send('Webhook processed successfully');
