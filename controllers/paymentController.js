@@ -1,5 +1,6 @@
 const PaymentModel = require('../collection/Payment');
 const fetch = require('node-fetch');
+const crypto = require('crypto');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
 const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; 
@@ -207,13 +208,11 @@ exports.Webhook = async (req, res) => {
     const signature = req.headers['paymongo-signature'];
 
     try {
-        // Log the raw payload
         console.log('Webhook payload:', req.body);
 
         const rawBody = JSON.stringify(req.body);
         const hmac = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
 
-        // Log the signature comparison
         console.log('PayMongo Signature:', signature);
         console.log('Computed HMAC:', hmac);
 
