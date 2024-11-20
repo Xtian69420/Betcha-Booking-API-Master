@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
 const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; 
-const webhookSecret = 'whsk_KRRDvpWGu5XD7phB4SWpXEWe';
+const webhookSecret = 'whsk_FFRGe9LnK7zvAGMy5dDzMm4K';
 
 const generatePaymentLink = async (amount, description) => {
     const response = await fetch(payMongoApiUrl, {
