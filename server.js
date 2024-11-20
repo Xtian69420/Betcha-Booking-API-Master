@@ -143,6 +143,3 @@ app.use(
 );
 
 app.post('/payments/webhook', paymentController.Webhook);
-
-
-app.post('/payments/webhook', paymentController.Webhook);
