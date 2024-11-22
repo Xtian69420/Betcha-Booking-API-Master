@@ -10,6 +10,7 @@ const PaymentSchema = mongoose.Schema({
     Status: { type: String, required: true, default: 'Pending' },
     PayMongoLink: { type: String, required: true },
     PaymentId: { type: String }
+    // isTrue
 }, {
     collection: 'payments_tb',
 });
