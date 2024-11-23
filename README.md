@@ -31,7 +31,6 @@
 ------------------------------
 ### 2️⃣ **Usage Instructions**
 ------------------------------
------------------------------
 # HOW TO USE ROUTES:
 
 ## Betcha-Booking-API Documentation
