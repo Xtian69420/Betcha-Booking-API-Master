@@ -42,7 +42,6 @@ app.listen(PORT, () => {
   console.log(`Server is running`);
 });
 
-// Test_Ping_Route
 app.get('/ping', (req, res) => {
   res.status(200).send('Server is alive!');
 });
