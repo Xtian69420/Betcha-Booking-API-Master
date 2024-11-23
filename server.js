@@ -13,6 +13,7 @@ const notificationController = require('./controllers/notificationController');
 const bookingController = require('./controllers/BookingController');
 const paymentController = require('./controllers/paymentController');
 const auditController = require('./controllers/auditController');
+const otpController = require('./controllers/otpController');
 
 const app = express();
 app.use(bodyParser.json());
@@ -131,3 +132,7 @@ app.get('/audit/customer', auditController.getAuditForCustomer);
     // get (/getAnualEarnings(Months)) 
  
 // OTP_Routes
+app.post('/otp/create', otpController.createOtp);
+app.post('/otp/verify', otpController.verifyOtp);
+app.post('/otp/delete', otpController.deleteOtp);
+app.post('/otp/resend', otpController.resendOtp);
