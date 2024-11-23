@@ -22,13 +22,13 @@ const deleteExpiredOtps = async () => {
 cron.schedule('* * * * *', deleteExpiredOtps); 
 
 exports.createOtp = async (req, res) => {
-    const { userId, email } = req.body;
+    const { email } = req.body;
 
     try {
         const otp = generateOTP();
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000); 
 
-        const newOtp = await OTP.create({ userId, otp, expiresAt });
+        const newOtp = await OTP.create({ email, otp, expiresAt });
 
         const msg = {
             to: email, 
@@ -62,28 +62,26 @@ exports.createOtp = async (req, res) => {
             `,
         };
 
-        await sgMail.send(msg);  
+        await sgMail.send(msg);
 
-        res.status(201).send({ message: 'OTP sent successfully!', otpId: newOtp._id });
+        res.status(201).send({ message: 'OTP sent successfully!' });
         console.log('OTP sent to:', email);
         console.log('Generated OTP:', otp);
         console.log('Expires At:', expiresAt);
-
     } catch (err) {
-
         console.error('Error sending OTP:', err);
         res.status(500).send({ error: 'Failed to generate OTP', details: err.message });
     }
 };
 
 exports.verifyOtp = async (req, res) => {
-    const { userId, otp, email } = req.body;
+    const { email, otp } = req.body;
 
     try {
-        const otpRecord = await OTP.findOne({ userId });
+        const otpRecord = await OTP.findOne({ email });
 
         if (!otpRecord) {
-            return res.status(404).send({ error: 'OTP not found.' });
+            return res.status(404).send({ error: 'OTP not found for this email.' });
         }
 
         if (otpRecord.isUsed) {
@@ -101,7 +99,7 @@ exports.verifyOtp = async (req, res) => {
         otpRecord.isUsed = true;
         await otpRecord.save();
 
-        await OTP.deleteMany({ userId });  
+        await OTP.deleteMany({ email }); 
 
         const msg = {
             to: email,
@@ -205,22 +203,16 @@ exports.verifyOtp = async (req, res) => {
         }
 
         res.send({ message: 'OTP verified successfully! Welcome email sent.' });
-
-        console.log('OTP verified for user:', userId);
-        console.log('Welcome email sent to:', email);
-
     } catch (err) {
         res.status(500).send({ error: 'Failed to verify OTP', details: err.message });
     }
 };
 
-
-
 exports.deleteOtp = async (req, res) => {
-    const { userId } = req.body;
+    const { email } = req.body;
 
     try {
-        await OTP.deleteOne({ userId });
+        await OTP.deleteOne({ email });
         res.send({ message: 'OTP deleted successfully!' });
     } catch (err) {
         res.status(500).send({ error: 'Failed to delete OTP', details: err.message });
@@ -228,26 +220,51 @@ exports.deleteOtp = async (req, res) => {
 };
 
 exports.resendOtp = async (req, res) => {
-    const { userId, email } = req.body;
+    const { email } = req.body;
 
     try {
-        await OTP.deleteOne({ userId });
+        await OTP.deleteOne({ email });
 
         const otp = generateOTP();
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
 
-        const newOtp = await OTP.create({ userId, otp, expiresAt });
+        const newOtp = await OTP.create({ email, otp, expiresAt });
 
         const msg = {
             to: email,
-            from: 'betcha.booking.webapp@gmail.com', 
+            from: 'betcha.booking.webapp@gmail.com',
             subject: 'Your New OTP Code',
-            text: `Your new OTP code is: ${otp}`,
+            html: `
+                <html>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0;">
+                        <table role="presentation" style="width: 100%; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 30px auto;">
+                            <tr>
+                                <td style="padding: 20px; text-align: center; border-bottom: 2px solid #f0f0f0;">
+                                    <h2 style="font-size: 24px; color: #333333; margin: 0;">Betcha Booking</h2>
+                                    <p style="font-size: 16px; color: #777777; margin-top: 5px;">Your OTP Code</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 20px; text-align: center;">
+                                    <h3 style="font-size: 28px; color: #4CAF50; margin-bottom: 20px;">${otp}</h3>
+                                    <p style="font-size: 16px; color: #555555; margin: 0;">Please use the OTP above to verify your identity.</p>
+                                    <p style="font-size: 14px; color: #777777; margin-top: 15px;">If you did not request this OTP, please ignore this email.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 20px; text-align: center; background-color: #f4f7fa; border-top: 2px solid #f0f0f0;">
+                                    <p style="font-size: 12px; color: #777777; margin: 0;">Betcha Booking © 2024</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                </html>
+            `,
         };
 
         await sgMail.send(msg);
 
-        res.status(201).send({ message: 'OTP resent successfully!', otpId: newOtp._id });
+        res.status(201).send({ message: 'OTP resent successfully!' });
     } catch (err) {
         res.status(500).send({ error: 'Failed to resend OTP', details: err.message });
     }
