@@ -1,9 +1,10 @@
 const PaymentModel = require('../collection/Payment');
 const BookingModel = require('../collection/Bookings');
 const fetch = require('node-fetch');
+require('dotenv').config();
 
-const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
-const payMongoApiKey = 'sk_test_FY8RJmTrGqyv1peKyRq31rh2'; 
+const payMongoApiUrl = process.env.PAYMONGO_API_URL;
+const payMongoApiKey = process.env.PAYMONGO_API_KEY;
 
 const generatePaymentLink = async (amount, description) => {
     const response = await fetch(payMongoApiUrl, {
