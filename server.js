@@ -85,6 +85,10 @@ app.get('/units/displayDashboard', unitController.getAvailableUnits);
 app.get('/getUnitById/:id', unitController.getUnitById);
 app.put('/editUnit/:id', unitController.editUnit);
 
+// display ranks
+app.get('/units/top', unitController.getTopUnits);
+app.get('/units/bottom', unitController.getBottomUnits);
+
 // Super_Admin_Routes
 app.post('/superAdminRegister', superAdminController.createSuperAdmin);
 app.post('/superAdminLogin', superAdminController.loginSuperAdmin);
@@ -131,6 +135,7 @@ app.get('/audit/customer', auditController.getAuditForCustomer);
 app.get('/getMonth/:month/:year', topUnitController.getMonth);
 app.get('/getAnnual/:year', topUnitController.getAnnual);
 app.get('/getAllDates', topUnitController.getAllDates);
+app.put('/updateTopUnits', topUnitController.updateTopForUnits);
 
 // OTP_Routes
 app.post('/otp/create', otpController.createOtp);

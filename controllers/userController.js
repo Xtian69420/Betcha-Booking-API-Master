@@ -371,6 +371,7 @@ exports.getUnverifiedUsers = async (req, res) => {
 
     res.status(200).json({
       message: 'Unverified users fetched successfully',
+      count: unverifiedUsers.length,
       data: unverifiedUsers,
     });
   } catch (error) {

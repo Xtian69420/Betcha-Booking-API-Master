@@ -1,4 +1,5 @@
 const Booking = require('../collection/Bookings');
+const Unit = require('../collection/Unit');
 
 const calculateUnitStats = async (filter = {}) => {
     const bookings = await Booking.find(filter).populate('UnitId', 'unitName unitPrice');
@@ -93,5 +94,31 @@ exports.getAllDates = async (req, res) => {
         res.json(stats);
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+};
+
+// create an update for all time top unit  in Top field of Unit schema and save it. each unit rank it from top 1 to then end of how many units
+exports.updateTopForUnits = async (req, res) => {
+    try {
+        const rankedUnits = await calculateUnitStats();
+
+        const updatePromises = rankedUnits.map(async (unit, index) => {
+            const updatedUnit = await Unit.findByIdAndUpdate(
+                unit.unitId,
+                { Top: unit.top }, 
+                { new: true } 
+            );
+
+            return updatedUnit;
+        });
+
+        const updatedUnits = await Promise.all(updatePromises);
+
+        res.status(200).json({
+            message: "Top rankings updated successfully for all units",
+            data: updatedUnits,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update Top rankings for units", error: error.message });
     }
 };

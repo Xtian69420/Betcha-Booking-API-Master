@@ -151,6 +151,47 @@ exports.getUnitById = async (req, res) => {
   }
 };
 
+// highest Rank
+exports.getTopUnits = async (req, res) => {
+  try {
+    const topUnits = await Unit.find()
+      .sort({ Top: 1 }) 
+      .limit(5); 
+
+    if (topUnits.length === 0) {
+      return res.status(404).json({ message: 'No units found' });
+    }
+
+    res.status(200).json({
+      message: 'Top 5 units retrieved successfully',
+      data: topUnits,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch top units', details: error.message });
+  }
+};
+
+// lowest rank
+exports.getBottomUnits = async (req, res) => {
+  try {
+    const bottomUnits = await Unit.find()
+      .sort({ Top: -1 }) 
+      .limit(5); 
+
+    if (bottomUnits.length === 0) {
+      return res.status(404).json({ message: 'No units found' });
+    }
+
+    res.status(200).json({
+      message: 'Bottom 5 units retrieved successfully',
+      data: bottomUnits,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch bottom units', details: error.message });
+  }
+};
+
+
 exports.editUnit = (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
