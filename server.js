@@ -81,6 +81,7 @@ app.get('/getAllAdmins', adminController.getAllAdmin);
 app.post('/addUnit', unitController.addUnit);
 app.delete('/deleteUnit/:id', unitController.deleteUnit);
 app.get('/units', unitController.getAllUnits);
+app.get('/units/displayDashboard', unitController.getAvailableUnits);
 app.get('/getUnitById/:id', unitController.getUnitById);
 app.put('/editUnit/:id', unitController.editUnit);
 

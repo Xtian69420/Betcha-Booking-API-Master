@@ -125,6 +125,20 @@ exports.getAllUnits = async (req, res) => {
   }
 };
 
+exports.getAvailableUnits = async (req, res) => {
+  try {
+    const availableUnits = await Unit.find({ isAvailable: true });
+
+    if (availableUnits.length === 0) {
+      return res.status(404).json({ message: 'No available units found' });
+    }
+
+    res.status(200).json(availableUnits);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch available units', details: error.message });
+  }
+};
+
 exports.getUnitById = async (req, res) => {
   try {
     const unit = await Unit.findById(req.params.id);
