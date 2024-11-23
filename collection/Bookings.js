@@ -23,12 +23,18 @@ const BookingSchema = mongoose.Schema({
     BookDates: [{ 
         Date: {type: String, required: true }}],
     CheckOut: { type: String, required: true },
+    UserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
     UnitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true }, 
     AdditionalPax: { type: Number, min: 1, required: true },
     Reservation: { type: Number, Default: 500 },
     isSuccess: { type: Boolean, Default: false, set: v => v === 'TRUE' },
     Status: { type: String, Default: "No status" },
-    Total: { type: Number, required: true }
+    PaymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Payments'}, 
+    Total: { type: Number, required: true },
+    EditStatusDates:[{
+        Date: {type: String},
+        Update: {type: String}
+    }]
 },{
     collection: 'bookings_tb'
 })

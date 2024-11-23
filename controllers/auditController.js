@@ -1,3 +1,5 @@
+const auditModel = require('../collection/Audit');
+
 // create CRUD for audit schema
 
 // Post audit

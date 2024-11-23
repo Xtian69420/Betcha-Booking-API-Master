@@ -57,8 +57,9 @@ app.get('/user/:userId', userController.getUserById);
 app.put('/updateUser/:userId', userController.updateUser);
 app.delete('/deleteUser/:userId', userController.deleteUser);
 
-// Get_Unverified_Users_ROute
-app.get('/users/unverified', userController.getUnverifiedUsers);
+// ID_Confirmation_Routes
+  app.get('/users/unverified', userController.getUnverifiedUsers);
+// same as app.put('/updateUser/:userId', userController.updateUser);
 
 // User_Profile_Routes
 app.post('/profile-image/:userId', userController.uploadProfileImage); 
@@ -96,8 +97,9 @@ app.put('/edit-status', bookingController.EditStatus);
 app.get('/bookings/unit/:unitId', bookingController.getBookingUnit);
 app.get('/booking/:reference', bookingController.getOneBooking);
 app.get('/bookings', bookingController.getAllBooking);
-app.delete('/booking/:reference', bookingController.deleteBooking);
 app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit);
+app.get('/booking/user/:userID', bookingController.getBookingUser);
+app.delete('/booking/:reference', bookingController.deleteBooking);
 
 // Notification_Routes
 app.post ('/notif', notificationController.CreateNotif);
@@ -108,6 +110,7 @@ app.get ('/AllNotifInSuper/:superAdminId', notificationController.getAllNotifSup
 app.get ('/Notif/:notifid', notificationController.getSpecificNtoif);
 app.delete ('/notif/:notifId', notificationController.deleteNotif)
 
+// Payment_Routes
 app.post('/payment/reservation', paymentController.PaymentReservation);
 app.post('/payment/full', paymentController.FullPayment);
 app.get('/payments', paymentController.getAllPayments);
@@ -124,9 +127,6 @@ app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
     // get (/get6Months(Months)) 
     // get (/getAnualEarnings(Months)) 
 
-// ID_Confirmation_Routes
-    // same as app.get('/user/:userId', userController.getUserById);
-    // same as app.put('/updateUser/:userId', userController.updateUser);
  
 // OTP
       // get OTP

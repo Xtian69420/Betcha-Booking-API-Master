@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const PaymentSchema = mongoose.Schema({
+    Reference:{ type: String, required: true },
     Date: { type: String, required: true },
     Mop: { type: String, required: true }, 
     UserId: { type: String, required: true },
@@ -10,7 +11,6 @@ const PaymentSchema = mongoose.Schema({
     Status: { type: String, required: true, default: 'Pending' },
     PayMongoLink: { type: String, required: true },
     PaymentId: { type: String }
-    // isTrue
 }, {
     collection: 'payments_tb',
 });

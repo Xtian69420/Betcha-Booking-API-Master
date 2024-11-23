@@ -27,7 +27,7 @@ const generateReference = async () => {
 
 exports.Book = async (req, res) => {
     try {
-        const { Date, CheckIn, CheckOut, UnitId, AdditionalPax } = req.body;
+        const { CheckIn, CheckOut, UnitId, AdditionalPax } = req.body;
         
         const BookDates = generateDateRange(CheckIn, CheckOut);
         
@@ -55,7 +55,7 @@ exports.Book = async (req, res) => {
 
         const newBooking = new BookingsModel({
             Reference,
-            Date: Date || new Date().toISOString().split('T')[0], 
+            Date: new Date().toISOString().split('T')[0], 
             CheckIn,
             CheckOut,
             UnitId,
@@ -63,7 +63,7 @@ exports.Book = async (req, res) => {
             AdditionalPax,
             Total: totalAmount,
             isSuccess: true,
-            Status: 'Booked'
+            Status: 'Pending Payment'
         });
 
         await newBooking.save();
@@ -108,13 +108,22 @@ exports.EditDate = async (req, res) => {
 exports.EditStatus = async (req, res) => {
     try {
         const { reference, Status } = req.body;
-        
+
         const booking = await BookingsModel.findOne({ Reference: reference });
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
 
+        const now = new Date();
+        const formattedDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        booking.EditStatusDates.push({
+            Date: formattedDateTime,
+            Update: Status
+        });
+
         booking.Status = Status;
+
         await booking.save();
 
         res.status(200).json({ message: 'Booking status successfully updated', booking });
@@ -124,11 +133,12 @@ exports.EditStatus = async (req, res) => {
     }
 };
 
+
 exports.getBookingUnit = async (req, res) => {
     try {
         const { unitId } = req.params;
-        
-        const bookings = await BookingsModel.find({ UnitId: unitId });
+
+        const bookings = await BookingsModel.find({ UnitId: unitId }).populate('PaymentId');
         res.status(200).json(bookings);
     } catch (error) {
         console.error(error);
@@ -139,8 +149,8 @@ exports.getBookingUnit = async (req, res) => {
 exports.getOneBooking = async (req, res) => {
     try {
         const { reference } = req.params;
-        
-        const booking = await BookingsModel.findOne({ Reference: reference });
+
+        const booking = await BookingsModel.findOne({ Reference: reference }).populate('PaymentId');
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
@@ -154,13 +164,32 @@ exports.getOneBooking = async (req, res) => {
 
 exports.getAllBooking = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find();
+
+        const bookings = await BookingsModel.find().populate('PaymentId');
         res.status(200).json(bookings);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error retrieving bookings', error });
     }
 };
+
+exports.getBookingUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const bookings = await BookingsModel.find({ userId: userId }).populate('PaymentId');
+        
+        if (!bookings || bookings.length === 0) {
+            return res.status(404).json({ message: "No bookings found for this user" });
+        }
+
+        res.status(200).json(bookings);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving bookings for the user', error });
+    }
+};
+
 
 exports.deleteBooking = async (req, res) => {
     try {
@@ -182,10 +211,13 @@ exports.getAllDatesBookByUnit = async (req, res) => {
     try {
         const { unitId } = req.params; 
         
-        const bookings = await BookingsModel.find({ UnitId: unitId });
-        
+        const bookings = await BookingsModel.find({
+            UnitId: unitId,
+            Status: { $ne: 'Cancelled' } 
+        });
+
         if (!bookings || bookings.length === 0) {
-            return res.status(404).json({ message: "No bookings found for this unit" });
+            return res.status(404).json({ message: "No valid bookings found for this unit" });
         }
 
         const allBookedDates = [];

@@ -1,4 +1,5 @@
 const PaymentModel = require('../collection/Payment');
+const BookingModel = require('../collection/Bookings');
 const fetch = require('node-fetch');
 
 const payMongoApiUrl = 'https://api.paymongo.com/v1/links';
@@ -27,30 +28,38 @@ const generatePaymentLink = async (amount, description) => {
 };
 
 exports.PaymentReservation = async (req, res) => {
-    const { amount, userId, unitId } = req.body;
+    const { ref, amount, userId, unitId } = req.body;
 
     try {
         const apiResponse = await generatePaymentLink(amount, 'Reservation');
 
         if (apiResponse.data) {
             const paymentData = {
+                Reference: ref,
                 Date: new Date().toISOString(),
                 Mop: 'N/A',  
                 UserId: userId,
                 UnitId: unitId,
                 Amount: amount,
                 Description: 'Reservation',
-                Status: 'Failed',  
+                Status: 'Pending',  
                 PayMongoLink: apiResponse.data.id, 
             };
 
             const newPayment = new PaymentModel(paymentData);
             await newPayment.save();
 
+            const updatedBooking = await BookingModel.findOneAndUpdate(
+                { Reference: ref },
+                { PaymentId: newPayment._id }, 
+                { new: true }
+            );
+
             res.status(200).json({
                 message: 'Payment link created successfully.',
                 paymentLink: apiResponse.data.attributes.checkout_url,
                 paymentDetails: newPayment,
+                bookingDetails: updatedBooking,
             });
         } else {
             res.status(400).json({ error: 'Failed to create payment link.' });
@@ -62,30 +71,38 @@ exports.PaymentReservation = async (req, res) => {
 };
 
 exports.FullPayment = async (req, res) => {
-    const { amount, userId, unitId } = req.body;
+    const { ref, amount, userId, unitId } = req.body;
 
     try {
         const apiResponse = await generatePaymentLink(amount, 'Full Payment');
         console.log(apiResponse);
         if (apiResponse.data) {
             const paymentData = {
+                Reference: ref,
                 Date: new Date().toISOString(),
                 Mop: 'N/A',
                 UserId: userId,
                 UnitId: unitId,
                 Amount: amount,
                 Description: 'Full Payment',
-                Status: 'Failed',
+                Status: 'Pending',
                 PayMongoLink: apiResponse.data.id,  
             };
 
             const newPayment = new PaymentModel(paymentData);
             await newPayment.save();
 
+            const updatedBooking = await BookingModel.findOneAndUpdate(
+                { Reference: ref },
+                { PaymentId: newPayment._id },  
+                { new: true }
+            );
+
             res.status(200).json({
                 message: 'Payment link created successfully.',
                 paymentLink: apiResponse.data.attributes.checkout_url,
                 paymentDetails: newPayment,
+                bookingDetails: updatedBooking,
             });
         } else {
             res.status(400).json({ error: 'Failed to create payment link.' });
@@ -95,6 +112,7 @@ exports.FullPayment = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 const fetchPaymentDetails = async (paymentId) => {
     const response = await fetch(`https://api.paymongo.com/v1/payments/${paymentId}`, {
@@ -126,7 +144,6 @@ exports.getPaymentDetails = async (req, res) => {
         }
 
         const linkDetails = await linkResponse.json();
-
         const payments = linkDetails?.data?.attributes?.payments || [];
 
         if (payments.length === 0) {
@@ -135,30 +152,75 @@ exports.getPaymentDetails = async (req, res) => {
 
         for (let payment of payments) {
             const paymentId = payment.data.id;
-
             const paymentDetails = await fetchPaymentDetails(paymentId);
 
             if (paymentDetails && paymentDetails.data) {
                 const status = paymentDetails.data.attributes.status;
                 const mop = paymentDetails.data.attributes.source.type;
-
                 const updatedPayment = await PaymentModel.findOne({ PayMongoLink: linkId });
 
                 if (updatedPayment) {
 
-                    updatedPayment.Status = status === 'paid' ? 'Successful' : 'Failed';
+                    if (updatedPayment.Description === 'Reservation') {
+                        updatedPayment.Status = status === 'paid' ? 'Reserved' : 'Failed';
+                    } else if (updatedPayment.Description === 'Full Payment') {
+                        updatedPayment.Status = status === 'paid' ? 'Fully-Paid' : 'Failed';
+                    }
                     updatedPayment.Mop = mop;
                     updatedPayment.PaymentId = paymentId;
 
                     await updatedPayment.save();
 
+                    if (status === 'paid') {
+                        const bookingStatus = updatedPayment.Description === 'Reservation' ? 'Reserved' : 'Fully-Paid';
+
+                        const updatedBooking = await BookingModel.findOneAndUpdate(
+                            { Reference: updatedPayment.Reference },
+                            { Status: bookingStatus },             
+                            { new: true }                          
+                        );
+
+                        if (!updatedBooking) {
+                            console.error('Booking not found for reference:', updatedPayment.Reference);
+                            const status = paymentDetails.data.attributes.status;
+                            const mop = paymentDetails.data.attributes.source.type;
+                            const updatedPayment = await PaymentModel.findOne({ PayMongoLink: linkId });
+
+                            return res.status(404).json({ error: 'Associated booking not found.' });
+                        }
+                    }
+
                     return res.status(200).json({
-                        message: 'Payment details retrieved and updated successfully.',
+                        message: 'Payment and booking details retrieved and updated successfully.',
                         paymentDetails: updatedPayment,
                     });
                 } else {
-                    return res.status(404).json({ error: 'Payment record not found.' });
-                }
+                    const payment = await PaymentModel.findOne({ PayMongoLink: linkId });
+                    
+                    if (payment) {
+                        payment.Status = 'Payment Failed';
+                        await payment.save();
+
+                        const booking = await BookingModel.findOneAndUpdate(
+                            { Reference: payment.Reference }, 
+                            { Status: 'Cancelled' }, 
+                            { new: true }
+                        );
+                
+                        if (!booking) {
+                            console.error('Booking not found for reference:', payment.Reference);
+                            return res.status(404).json({ error: 'Associated booking not found.' });
+                        }
+                
+                        return res.status(200).json({
+                            message: 'Payment Failed: Your Booking was cancelled',
+                            paymentDetails: payment,
+                            bookingDetails: booking,
+                        });
+                    } else {
+                        return res.status(404).json({ error: 'Payment record not found.' });
+                    }
+                }                    
             } else {
                 return res.status(404).json({ error: 'Payment details not found.' });
             }
