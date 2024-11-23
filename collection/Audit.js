@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 
-const AuditSchema = mongoose.AuditSchema({
-    Reference: {type: String, required: ture},
-    Date: {type: String, required: true},
-    AdminId: {type: String, required: true},
-    Activity: { type: String, required: true},
+const AuditSchema = new mongoose.Schema({
+    Reference: { type: String, required: true },
+    Date: { type: String, required: true },
+    UserId: { type: String, required: true },
+    Activity: { type: String, required: true },
+    Role: { type: String, required: true }
 }, {
     collection: 'audit_tb'
 });
-module.exports = mongoose.model('Audit', BookingSchema);
+
+module.exports = mongoose.model('Audit', AuditSchema);

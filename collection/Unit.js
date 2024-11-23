@@ -11,6 +11,7 @@ const UnitSchema = new mongoose.Schema({
     Top: { type: Number, required: false, min: 1 },
     unitName: { type: String, required: true, unique: true },
     location: { type: String, required: true },
+    category: { type: String, required: true, default: 'others' },
     description: { type: String, default: "" },
     amenities: {
         towels: { type: Boolean, default: false },

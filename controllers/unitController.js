@@ -64,7 +64,8 @@ exports.addUnit = (req, res) => {
       unitPrice, 
       isAvailable, 
       maxPax, 
-      pricePerPax 
+      pricePerPax,
+      category = 'others'
     } = req.body;
 
     const unitImages = req.files;
@@ -98,6 +99,7 @@ exports.addUnit = (req, res) => {
         isAvailable,
         maxPax,
         pricePerPax,
+        category,  
         UnitImages: uploadedImages,
       });
 
@@ -168,6 +170,10 @@ exports.editUnit = (req, res) => {
         updates.amenities = JSON.parse(updates.amenities);
       }
 
+      if (!updates.category) {
+        updates.category = 'others'; 
+      }
+
       const updatedUnit = await Unit.findByIdAndUpdate(req.params.id, updates, {
         new: true, 
         runValidators: true, 
@@ -186,7 +192,6 @@ exports.editUnit = (req, res) => {
     }
   });
 };
-
 
 exports.deleteUnit = async (req, res) => {
   try {
@@ -208,5 +213,68 @@ exports.deleteUnit = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete unit', details: error.message });
+  }
+};
+
+exports.searchUnits = async (req, res) => {
+  const { 
+    query, 
+    minPrice, maxPrice, 
+    minMaxPax, maxMaxPax,
+    minUnitPrice, maxUnitPrice 
+  } = req.body;
+
+  let filter = {};
+
+  if (query) {
+    filter.$or = [
+      { unitName: { $regex: query, $options: 'i' } },
+      { location: { $regex: query, $options: 'i' } },
+      { description: { $regex: query, $options: 'i' } },
+      { category: { $regex: query, $options: 'i' } }
+    ];
+  }
+
+  if (minPrice || maxPrice) {
+    filter.unitPrice = {};
+    if (minPrice) {
+      filter.unitPrice.$gte = minPrice;
+    }
+    if (maxPrice) {
+      filter.unitPrice.$lte = maxPrice;
+    }
+  }
+
+  if (minMaxPax || maxMaxPax) {
+    filter.maxPax = {};
+    if (minMaxPax) {
+      filter.maxPax.$gte = minMaxPax;
+    }
+    if (maxMaxPax) {
+      filter.maxPax.$lte = maxMaxPax;
+    }
+  }
+
+  if (minUnitPrice || maxUnitPrice) {
+    filter.unitPrice = filter.unitPrice || {};
+    if (minUnitPrice) {
+      filter.unitPrice.$gte = minUnitPrice;
+    }
+    if (maxUnitPrice) {
+      filter.unitPrice.$lte = maxUnitPrice;
+    }
+  }
+
+  try {
+
+    const units = await Unit.find(filter);
+
+    if (units.length === 0) {
+      return res.status(404).json({ message: 'No units found matching the search criteria' });
+    }
+
+    res.status(200).json(units);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to search units', details: error.message });
   }
 };

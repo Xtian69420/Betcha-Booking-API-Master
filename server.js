@@ -12,6 +12,7 @@ const superAdminController = require('./controllers/superAdminController');
 const notificationController = require('./controllers/notificationController');
 const bookingController = require('./controllers/BookingController');
 const paymentController = require('./controllers/paymentController');
+const auditController = require('./controllers/auditController');
 
 const app = express();
 app.use(bodyParser.json());
@@ -119,14 +120,15 @@ app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
 
 // Audit_Routes
-  // Post Audit
-  // Get AllAudit
+router.post('/audit/create', auditController.createAudit);
+router.get('/auit/all', auditController.getAuditAllUsers);
+router.get('/audit/admin', auditController.getAuditForAdmin);
+router.get('/audit/customer', auditController.getAuditForCustomer);
 
 // TopUnit_Routes
     // get (/getMonth(week))
     // get (/get6Months(Months)) 
     // get (/getAnualEarnings(Months)) 
-
  
 // OTP
       // get OTP
