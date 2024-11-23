@@ -47,6 +47,19 @@ app.get('/ping', (req, res) => {
   res.status(200).send('Server is alive!');
 });
 
+const http = require('http');
+
+const serverUrl = 'https://betcha-booking-api-master.onrender.com';
+
+setInterval(() => {
+  http.get(serverUrl, (res) => {
+    console.log(`Ping sent to server: ${res.statusCode}`);
+  }).on('error', (err) => {
+    console.error(`Error: ${err.message}`);
+  });
+}, 5 * 60 * 1000); 
+
+
 app.get('/', (req, res) => {
   res.status(200).send('Server is alive!');
 });
