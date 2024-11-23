@@ -120,17 +120,14 @@ app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
 
 // Audit_Routes
-router.post('/audit/create', auditController.createAudit);
-router.get('/auit/all', auditController.getAuditAllUsers);
-router.get('/audit/admin', auditController.getAuditForAdmin);
-router.get('/audit/customer', auditController.getAuditForCustomer);
+app.post('/audit/create', auditController.createAudit);
+app.get('/auit/all', auditController.getAuditAllUsers);
+app.get('/audit/admin', auditController.getAuditForAdmin);
+app.get('/audit/customer', auditController.getAuditForCustomer);
 
 // TopUnit_Routes
     // get (/getMonth(week))
     // get (/get6Months(Months)) 
     // get (/getAnualEarnings(Months)) 
  
-// OTP
-      // get OTP
-      // Post ConfirmOTP
-      // DeleteOTP const
+// OTP_Routes

@@ -18,13 +18,13 @@ exports.createOtp = async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'your-email@gmail.com',
-                pass: 'your-email-password'
+                user: 'betcha.booking.webapp@gmail.com',
+                pass: 'BetchaBooking2024'
             }
         });
 
         await transporter.sendMail({
-            from: '"OTP Service" <your-email@gmail.com>',
+            from: '"OTP Service" betcha.booking.webapp@gmail.com',
             to: email,
             subject: 'Your OTP Code',
             text: `Your OTP code is: ${otp}`
