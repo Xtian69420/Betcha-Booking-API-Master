@@ -32,9 +32,9 @@
 ### 2️⃣ **Usage Instructions**
 ------------------------------
 -----------------------------
-### HOW TO USE ROUTES:
+# HOW TO USE ROUTES:
 
-# Betcha-Booking-API Documentation
+## Betcha-Booking-API Documentation
 
 Base URL: [Betcha Booking API](https://betcha-booking-api-master.onrender.com)
 
