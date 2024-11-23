@@ -361,7 +361,6 @@ exports.deleteProfileImage = async (req, res) => {
   }
 };
 
-
 exports.getUnverifiedUsers = async (req, res) => {
   try {
     const unverifiedUsers = await User.find({ isVerified: false });
