@@ -79,7 +79,7 @@ app.get('/getAllAdmins', adminController.getAllAdmin);
 
 // Unit_Routes
 app.post('/addUnit', unitController.addUnit);
-app.delete('/deleteUnit', unitController.deleteUnit);
+app.delete('/deleteUnit/:id', unitController.deleteUnit);
 app.get('/units', unitController.getAllUnits);
 app.get('/getUnitById/:id', unitController.getUnitById);
 app.put('/editUnit/:id', unitController.editUnit);
