@@ -18,6 +18,7 @@ exports.createOtp = async (req, res) => {
 
         const newOtp = await OTP.create({ userId, otp, expiresAt });
 
+        // update later
         const msg = {
             to: email, 
             from: 'betcha.booking.webapp@gmail.com', 
