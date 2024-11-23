@@ -14,6 +14,7 @@ const bookingController = require('./controllers/BookingController');
 const paymentController = require('./controllers/paymentController');
 const auditController = require('./controllers/auditController');
 const otpController = require('./controllers/otpController');
+const topUnitController = require('./controllers/topUnitsController');
 
 const app = express();
 app.use(bodyParser.json());
@@ -126,10 +127,10 @@ app.get('/audit/admin', auditController.getAuditForAdmin);
 app.get('/audit/customer', auditController.getAuditForCustomer);
 
 // TopUnit_Routes
-    // get (/getMonth(week))
-    // get (/get6Months(Months)) 
-    // get (/getAnualEarnings(Months)) 
- 
+app.get('/getMonth/:month/:year', topUnitController.getMonth);
+app.get('/getAnnual/:year', topUnitController.getAnnual);
+app.get('/getAllDates', topUnitController.getAllDates);
+
 // OTP_Routes
 app.post('/otp/create', otpController.createOtp);
 app.post('/otp/verify', otpController.verifyOtp);

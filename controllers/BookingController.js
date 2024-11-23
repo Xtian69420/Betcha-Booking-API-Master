@@ -27,7 +27,7 @@ const generateReference = async () => {
 
 exports.Book = async (req, res) => {
     try {
-        const { CheckIn, CheckOut, UnitId, AdditionalPax } = req.body;
+        const { CheckIn, CheckOut, UserId, UnitId, AdditionalPax } = req.body;
         
         const BookDates = generateDateRange(CheckIn, CheckOut);
         
@@ -58,6 +58,7 @@ exports.Book = async (req, res) => {
             Date: new Date().toISOString().split('T')[0], 
             CheckIn,
             CheckOut,
+            UserId,
             UnitId,
             BookDates: BookDates.map(date => ({ Date: date })),
             AdditionalPax,

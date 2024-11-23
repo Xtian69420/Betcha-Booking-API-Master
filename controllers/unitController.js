@@ -58,6 +58,7 @@ exports.addUnit = (req, res) => {
     const { 
       unitName, 
       location, 
+      maplink,
       description, 
       amenities, 
       otherAmenities, 
@@ -92,6 +93,7 @@ exports.addUnit = (req, res) => {
       const newUnit = new Unit({
         unitName,
         location,
+        maplink,
         description,
         amenities: JSON.parse(amenities || "{}"),
         otherAmenities,
