@@ -15,6 +15,7 @@ const paymentController = require('./controllers/paymentController');
 const auditController = require('./controllers/auditController');
 const otpController = require('./controllers/otpController');
 const topUnitController = require('./controllers/topUnitsController');
+const faqsController = require('./controllers/FAQsController');
 
 const app = express();
 app.use(bodyParser.json());
@@ -142,3 +143,8 @@ app.post('/otp/create', otpController.createOtp);
 app.post('/otp/verify', otpController.verifyOtp);
 app.post('/otp/delete', otpController.deleteOtp);
 app.post('/otp/resend', otpController.resendOtp);
+
+app.post('/faqs/create', faqsController.CreateFaqs);
+app.get('faqs/getAll', faqsController.GetAllFaqs);
+app.get('faqs/get/:id', faqsController.GetSpecificFaqs);
+app.put('faqs/update/:id', faqsController.UpdateFaqs);
