@@ -1,1 +1,17 @@
-<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1929.4659404373374!2d121.06070305713865!3d14.71644322664029!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b08c3aa74213%3A0x325214dc350bb0d1!2sSTI%20College%20Fairview!5e0!3m2!1sen!2sph!4v1732380342685!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<label for="eventDropdown">Select a fruit:</label>
+<select id="eventDropdown">
+    <option value="apple">Apple</option>
+    <option value="banana">Banana</option>
+    <option value="cherry">Cherry</option>
+</select>
+
+<p id="selectedValue"></p>
+
+<script>
+    const eventDropdown = document.getElementById('eventDropdown');
+    const selectedValueDisplay = document.getElementById('selectedValue');
+    
+    eventDropdown.addEventListener('change', (event) => {
+        selectedValueDisplay.textContent = `You selected: ${event.target.value}`;
+    });
+</script>
