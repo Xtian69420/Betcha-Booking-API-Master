@@ -4,18 +4,26 @@
 
 ## **Dependencies**
 
-| **API**         | **Usage**                                                                 |
-|------------------|---------------------------------------------------------------------------|
-| <span style="color:#4CAF50;">MongoDB</span>      | Database for storing application data                                        |
-| <span style="color:#2196F3;">Mongoose</span>     | ODM for MongoDB, managing schemas and models                                |
-| <span style="color:#FF5722;">Express</span>      | Web framework for building RESTful APIs                                     |
-| <span style="color:#795548;">Node.js</span>      | Runtime environment for executing server-side JavaScript                    |
-| <span style="color:#FFC107;">jsonwebtoken</span> | Authentication and secure communication via tokens                         |
-| <span style="color:#009688;">bcryptjs</span>     | Password hashing for securing user credentials                             |
-| <span style="color:#3F51B5;">Gdrive API</span>   | Integration with Google Drive for file storage                              |
-| <span style="color:#9C27B0;">MongoPay</span>     | Payment gateway integration                                                |
-| <span style="color:#FF9800;">FS</span>           | File system module for file operations                                     |
-| <span style="color:#673AB7;">Multer</span>       | Middleware for handling file uploads in `multipart/form-data`              |
+| **Package**          | **Version** | **Description**                                                                 |
+|-----------------------|-------------|---------------------------------------------------------------------------------|
+| `@sendgrid/mail`      | `^8.1.4`    | SendGrid API for sending transactional emails                                  |
+| `axios`               | `^1.7.7`    | Promise-based HTTP client for making API requests                             |
+| `bcrypt`              | `^5.1.1`    | Library for hashing passwords                                                 |
+| `bcryptjs`            | `^2.4.3`    | JavaScript-based password hashing library                                     |
+| `body-parser`         | `^1.20.3`   | Middleware for parsing incoming request bodies in JSON or URL-encoded formats |
+| `cors`                | `^2.8.5`    | Middleware for enabling Cross-Origin Resource Sharing                         |
+| `crypto-js`           | `^4.2.0`    | Library for standard cryptographic algorithms                                 |
+| `dotenv`              | `^16.4.5`   | Module for loading environment variables from a `.env` file                   |
+| `express`             | `^4.21.1`   | Web framework for building RESTful APIs                                       |
+| `google-auth-library` | `^9.14.2`   | Google authentication library for Node.js                                    |
+| `googleapis`          | `^144.0.0`  | Google API client library                                                     |
+| `jsonwebtoken`        | `^9.0.2`    | Library for generating and verifying JSON Web Tokens                          |
+| `mongodb`             | `^6.10.0`   | MongoDB Node.js driver                                                        |
+| `mongoose`            | `^8.8.0`    | ODM library for MongoDB, managing schemas and models                          |
+| `multer`              | `^1.4.5-lts.1` | Middleware for handling `multipart/form-data` file uploads                   |
+| `node-cron`           | `^3.0.3`    | Library for scheduling tasks in Node.js                                       |
+| `nodemailer`          | `^6.9.16`   | Module for sending emails from Node.js applications                           |
+| `streamifier`         | `^0.1.1`    | Converts a buffer or string to a readable stream                              |
 
 ---
 
