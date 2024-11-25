@@ -234,3 +234,33 @@ exports.getAllDatesBookByUnit = async (req, res) => {
         res.status(500).json({ message: "Error fetching booked dates", error });
     }
 };
+
+exports.getAllNotSuccessful = async (req, res) => {
+    try {
+        const bookings = await BookingsModel.find({ Status: { $ne: 'Successful' } }).populate('PaymentId');
+        
+        if (!bookings || bookings.length === 0) {
+            return res.status(404).json({ message: "No bookings with a status other than 'Successful' found" });
+        }
+
+        res.status(200).json({ message: "Bookings retrieved successfully", bookings });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error retrieving bookings", error });
+    }
+};
+
+exports.getAllSuccessful = async (req, res) => {
+    try {
+        const bookings = await BookingsModel.find({ Status: 'Successful' }).populate('PaymentId');
+        
+        if (!bookings || bookings.length === 0) {
+            return res.status(404).json({ message: "No bookings with the status 'Successful' found" });
+        }
+
+        res.status(200).json({ message: "Successful bookings retrieved successfully", bookings });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error retrieving successful bookings", error });
+    }
+};

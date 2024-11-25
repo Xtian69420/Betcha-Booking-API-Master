@@ -107,6 +107,8 @@ app.get('/booking/:reference', bookingController.getOneBooking);
 app.get('/bookings', bookingController.getAllBooking);
 app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit);
 app.get('/booking/user/:userID', bookingController.getBookingUser);
+app.get('/bookings/pending', bookingController.getAllNotSuccessful);
+app.get('/bookings/successful', bookingController.getAllSuccessful);
 app.delete('/booking/:reference', bookingController.deleteBooking);
 
 // Notification_Routes
@@ -144,6 +146,7 @@ app.post('/otp/verify', otpController.verifyOtp);
 app.post('/otp/delete', otpController.deleteOtp);
 app.post('/otp/resend', otpController.resendOtp);
 
+// FAQs_Routes
 app.post('/faqs/create', faqsController.CreateFaqs);
 app.get('faqs/getAll', faqsController.GetAllFaqs);
 app.get('faqs/get/:id', faqsController.GetSpecificFaqs);
