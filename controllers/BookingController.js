@@ -139,7 +139,7 @@ exports.getBookingUnit = async (req, res) => {
     try {
         const { unitId } = req.params;
 
-        const bookings = await BookingsModel.find({ UnitId: unitId }).populate('PaymentId');
+        const bookings = await BookingsModel.find({ UnitId: unitId }).populate('PaymentId').populate('UnitId').populate('UserId');
         res.status(200).json(bookings);
     } catch (error) {
         console.error(error);
@@ -151,7 +151,7 @@ exports.getOneBooking = async (req, res) => {
     try {
         const { reference } = req.params;
 
-        const booking = await BookingsModel.findOne({ Reference: reference }).populate('PaymentId');
+        const booking = await BookingsModel.findOne({ Reference: reference }).populate('PaymentId').populate('UnitId').populate('UserId');
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
@@ -166,7 +166,7 @@ exports.getOneBooking = async (req, res) => {
 exports.getAllBooking = async (req, res) => {
     try {
 
-        const bookings = await BookingsModel.find().populate('PaymentId');
+        const bookings = await BookingsModel.find().populate('PaymentId').populate('UnitId').populate('UserId');
         res.status(200).json(bookings);
     } catch (error) {
         console.error(error);
@@ -178,7 +178,7 @@ exports.getBookingUser = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        const bookings = await BookingsModel.find({ userId: userId }).populate('PaymentId');
+        const bookings = await BookingsModel.find({ userId: userId }).populate('PaymentId').populate('UnitId').populate('UserId');
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings found for this user" });
@@ -214,8 +214,8 @@ exports.getAllDatesBookByUnit = async (req, res) => {
         
         const bookings = await BookingsModel.find({
             UnitId: unitId,
-            Status: { $ne: 'Cancelled' } 
-        });
+            Status: { $ne: 'Cancelled' }
+        }).populate('PaymentId').populate('UnitId').populate('UserId');
 
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No valid bookings found for this unit" });
@@ -237,7 +237,7 @@ exports.getAllDatesBookByUnit = async (req, res) => {
 
 exports.getAllNotSuccessful = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: { $ne: 'Successful' } }).populate('PaymentId');
+        const bookings = await BookingsModel.find({ Status: { $ne: 'Successful' } }).populate('PaymentId').populate('UnitId').populate('UserId');
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with a status other than 'Successful' found" });
@@ -252,7 +252,7 @@ exports.getAllNotSuccessful = async (req, res) => {
 
 exports.getAllSuccessful = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: 'Successful' }).populate('PaymentId');
+        const bookings = await BookingsModel.find({ Status: 'Successful' }).populate('PaymentId').populate('UnitId').populate('UserId');;
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with the status 'Successful' found" });
@@ -262,5 +262,68 @@ exports.getAllSuccessful = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error retrieving successful bookings", error });
+    }
+};
+
+exports.getBookingByDate = async (req, res) => {
+    try {
+        const { date } = req.params; 
+
+        if (!date) {
+            return res.status(400).json({ message: "Date parameter is required." });
+        }
+
+        const formattedDate = new Date(date);
+        if (isNaN(formattedDate)) {
+            return res.status(400).json({ message: "Invalid date format." });
+        }
+
+        const matchingBookings = await BookingsModel.find({
+            'BookDates.Date': date
+        }).populate('PaymentId').populate('UnitId').populate('UserId');
+
+        if (matchingBookings.length === 0) {
+            return res.status(404).json({ message: "No bookings found for the specified date." });
+        }
+
+        res.status(200).json({
+            message: "Bookings retrieved successfully",
+            bookings: matchingBookings
+        });
+    } catch (error) {
+        console.error("Error retrieving bookings by date:", error);
+        res.status(500).json({ message: "Server error. Please try again later." });
+    }
+};
+
+exports.getBookingByDateAndUnit = async (req, res) => {
+    try {
+        const { date, unitId } = req.params;  
+
+        if (!date || !unitId) {
+            return res.status(400).json({ message: "Date and UnitId parameters are required." });
+        }
+
+        const formattedDate = new Date(date);
+        if (isNaN(formattedDate)) {
+            return res.status(400).json({ message: "Invalid date format." });
+        }
+
+        const matchingBookings = await BookingsModel.find({
+            'BookDates.Date': date,
+            UnitId: unitId
+        }).populate('PaymentId').populate('UnitId').populate('UserId');
+
+        if (matchingBookings.length === 0) {
+            return res.status(404).json({ message: "No bookings found for the specified date and unit." });
+        }
+
+        res.status(200).json({
+            message: "Bookings retrieved successfully for the specified date and unit",
+            bookings: matchingBookings
+        });
+    } catch (error) {
+        console.error("Error retrieving bookings by date and unit:", error);
+        res.status(500).json({ message: "Server error. Please try again later." });
     }
 };

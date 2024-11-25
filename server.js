@@ -109,6 +109,8 @@ app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit)
 app.get('/booking/user/:userID', bookingController.getBookingUser);
 app.get('/bookings/pending', bookingController.getAllNotSuccessful);
 app.get('/bookings/successful', bookingController.getAllSuccessful);
+app.get('/getBookingByDate/:date', bookingController.getBookingByDate);
+app.get('/getBookingByDateandUnit/:date/:unitId', bookingController.getBookingByDateAndUnit);
 app.delete('/booking/:reference', bookingController.deleteBooking);
 
 // Notification_Routes
