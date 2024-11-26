@@ -147,6 +147,7 @@ app.post('/otp/create', otpController.createOtp);
 app.post('/otp/verify', otpController.verifyOtp);
 app.post('/otp/delete', otpController.deleteOtp);
 app.post('/otp/resend', otpController.resendOtp);
+app.post('/otp/bookMail', otpController.BookingMessage);
 
 // FAQs_Routes
 app.post('/faqs/create', faqsController.CreateFaqs);

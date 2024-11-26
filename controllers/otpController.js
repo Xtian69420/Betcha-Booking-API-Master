@@ -263,9 +263,80 @@ exports.resendOtp = async (req, res) => {
         };
 
         await sgMail.send(msg);
-
         res.status(201).send({ message: 'OTP resent successfully!' });
     } catch (err) {
         res.status(500).send({ error: 'Failed to resend OTP', details: err.message });
+    }
+};
+
+exports.BookingMessage = async (req, res) => {
+    const { email, amount, typeOfPayment, methodOfPayment, unitName, checkIn, checkOut } = req.body;
+
+    try {
+        const msg = {
+            to: email,
+            from: 'betcha.booking.webapp@gmail.com',
+            subject: 'Booking Confirmation - Betcha by Homie House Booking',
+            html: `
+                <html>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0;">
+                        <table role="presentation" style="width: 100%; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 30px auto;">
+                            <tr>
+                                <td style="padding: 20px; text-align: center; border-bottom: 2px solid #f0f0f0;">
+                                    <h2 style="font-size: 24px; color: #333333; margin: 0;">Betcha by Homie House Booking</h2>
+                                    <p style="font-size: 16px; color: #777777; margin-top: 5px;">Your Booking Confirmation</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 20px;">
+                                    <p style="font-size: 16px; color: #333333;">Dear Valued Customer,</p>
+                                    <p style="font-size: 16px; color: #333333;">
+                                        Congratulations! You've successfully booked <strong>${unitName}</strong>. Below are your booking details:
+                                    </p>
+                                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                                        <tr>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;">Amount Paid:</td>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;"><strong>${amount} PHP</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;">Payment Type:</td>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;"><strong>${typeOfPayment}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;">Payment Method:</td>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;"><strong>${methodOfPayment}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;">Check-In Date:</td>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;"><strong>${checkIn}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;">Check-Out Date:</td>
+                                            <td style="font-size: 14px; padding: 10px; border: 1px solid #ddd;"><strong>${checkOut}</strong></td>
+                                        </tr>
+                                    </table>
+                                    <p style="font-size: 16px; color: #333333;">
+                                        Should you have any questions or require further assistance, please do not hesitate to contact us. We look forward to hosting you.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 20px; text-align: center; background-color: #f4f7fa; border-top: 2px solid #f0f0f0;">
+                                    <p style="font-size: 12px; color: #777777; margin: 0;">Betcha Booking © 2024</p>
+                                    <p style="font-size: 12px; color: #777777; margin: 0;">Visit us at <a href="https://beta-betcha-booking.netlify.app/" style="color: #4CAF50;">Betcha by Homie House</a></p>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                </html>
+            `,
+        };
+
+        await sgMail.send(msg);
+        res.status(200).send({ message: 'Booking confirmation email sent successfully!' });
+        console.log('Booking confirmation sent to:', email);
+    } catch (error) {
+        console.error('Error sending booking confirmation:', error);
+        res.status(500).send({ error: 'Failed to send booking confirmation email', details: error.message });
     }
 };
