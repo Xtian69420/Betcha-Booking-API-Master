@@ -267,7 +267,7 @@ exports.getAllSuccessful = async (req, res) => {
 
 exports.getAllSuccessfulAndCancelled = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: { $in: ['Successful', 'Cancelled'] } })
+        const bookings = await BookingsModel.find({ Status: { $in: ['Successful', 'Cancelled', 'Did not arrived', 'Unpaid'] } })
             .populate('PaymentId')
             .populate('UnitId')
             .populate('UserId');
