@@ -368,3 +368,30 @@ exports.editSuccess = async (req, res) => {
         res.status(500).json({ message: 'Error updating success status', error });
     }
 };
+
+
+exports.getAllDatesForAllUnits = async (req, res) => {
+    try {
+
+        const bookings = await BookingsModel.find({
+            Status: { $ne: 'Cancelled' }
+        }).populate('PaymentId').populate('UnitId').populate('UserId');
+
+        if (!bookings || bookings.length === 0) {
+            return res.status(404).json({ message: "No valid bookings found" });
+        }
+
+        const allBookedDates = [];
+
+        bookings.forEach(booking => {
+            booking.BookDates.forEach(dateEntry => {
+                allBookedDates.push(dateEntry.Date);
+            });
+        });
+
+        res.status(200).json({ message: "All booked dates retrieved successfully", bookedDates: allBookedDates });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching booked dates", error });
+    }
+};
