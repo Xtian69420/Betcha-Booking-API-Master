@@ -228,12 +228,15 @@ exports.getAllDatesBookByUnit = async (req, res) => {
             });
         });
 
+        allBookedDates.sort((a, b) => new Date(a) - new Date(b));
+
         res.status(200).json({ message: "Booked dates retrieved successfully", bookedDates: allBookedDates });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error fetching booked dates", error });
     }
 };
+
 
 exports.getAllNotSuccessful = async (req, res) => {
     try {
@@ -372,7 +375,6 @@ exports.editSuccess = async (req, res) => {
 
 exports.getAllDatesForAllUnits = async (req, res) => {
     try {
-
         const bookings = await BookingsModel.find({
             Status: { $ne: 'Cancelled' }
         }).populate('PaymentId').populate('UnitId').populate('UserId');
@@ -388,6 +390,9 @@ exports.getAllDatesForAllUnits = async (req, res) => {
                 allBookedDates.push(dateEntry.Date);
             });
         });
+
+        // Sort the dates in ascending order
+        allBookedDates.sort((a, b) => new Date(a) - new Date(b));
 
         res.status(200).json({ message: "All booked dates retrieved successfully", bookedDates: allBookedDates });
     } catch (error) {
