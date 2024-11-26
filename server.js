@@ -102,6 +102,7 @@ app.get('/getSuperAdmin/:superAdmin', superAdminController.getSuperAdminInfo);
 app.post('/book', bookingController.Book);
 app.put('/edit-date', bookingController.EditDate);
 app.put('/edit-status', bookingController.EditStatus);
+app.get('/getCompleted', bookingController.getAllSuccessfulAndCancelled);
 app.get('/bookings/unit/:unitId', bookingController.getBookingUnit);
 app.get('/booking/:reference', bookingController.getOneBooking);
 app.get('/bookings', bookingController.getAllBooking);

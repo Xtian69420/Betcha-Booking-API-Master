@@ -265,6 +265,24 @@ exports.getAllSuccessful = async (req, res) => {
     }
 };
 
+exports.getAllSuccessfulAndCancelled = async (req, res) => {
+    try {
+        const bookings = await BookingsModel.find({ Status: { $in: ['Successful', 'Cancelled'] } })
+            .populate('PaymentId')
+            .populate('UnitId')
+            .populate('UserId');
+        
+        if (!bookings || bookings.length === 0) {
+            return res.status(404).json({ message: "No bookings with the status 'Successful' or 'Cancelled' found" });
+        }
+
+        res.status(200).json({ message: "Successful and Cancelled bookings retrieved successfully", bookings });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error retrieving successful and cancelled bookings", error });
+    }
+};
+
 exports.getBookingByDate = async (req, res) => {
     try {
         const { date } = req.params; 
@@ -325,5 +343,28 @@ exports.getBookingByDateAndUnit = async (req, res) => {
     } catch (error) {
         console.error("Error retrieving bookings by date and unit:", error);
         res.status(500).json({ message: "Server error. Please try again later." });
+    }
+};
+
+exports.editSuccess = async (req, res) => {
+    try {
+        const { reference, isSuccess } = req.body;
+        const booking = await BookingsModel.findOne({ Reference: reference });
+        if (!booking) {
+            return res.status(404).json({ message: "Booking not found" });
+        }
+
+        booking.isSuccess = isSuccess;
+
+        await booking.save();
+
+        res.status(200).json({
+            message: 'Booking success status updated successfully',
+            ref: reference,
+            isSuccess: booking.isSuccess
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating success status', error });
     }
 };
