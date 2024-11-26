@@ -237,7 +237,7 @@ exports.getAllDatesBookByUnit = async (req, res) => {
 
 exports.getAllNotSuccessful = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled'] } }).populate('PaymentId').populate('UnitId').populate('UserId');
+        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrived'] } }).populate('PaymentId').populate('UnitId').populate('UserId');
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with a status other than 'Successful' found" });
