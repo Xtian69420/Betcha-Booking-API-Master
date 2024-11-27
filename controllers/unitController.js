@@ -63,6 +63,7 @@ exports.addUnit = (req, res) => {
       amenities, 
       otherAmenities, 
       unitPrice, 
+      packageCapacity,
       isAvailable, 
       maxPax, 
       pricePerPax,
@@ -98,6 +99,7 @@ exports.addUnit = (req, res) => {
         amenities: JSON.parse(amenities || "{}"),
         otherAmenities,
         unitPrice,
+        packageCapacity,
         isAvailable,
         maxPax,
         pricePerPax,
@@ -231,6 +233,10 @@ exports.editUnit = (req, res) => {
         updates.category = 'others'; 
       }
 
+      if (updates.packageCapacity) {
+        updates.packageCapacity = updates.packageCapacity;
+      }
+
       const updatedUnit = await Unit.findByIdAndUpdate(req.params.id, updates, {
         new: true, 
         runValidators: true, 
@@ -249,6 +255,7 @@ exports.editUnit = (req, res) => {
     }
   });
 };
+
 
 exports.deleteUnit = async (req, res) => {
   try {

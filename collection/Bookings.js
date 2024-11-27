@@ -25,7 +25,7 @@ const BookingSchema = mongoose.Schema({
     CheckOut: { type: String, required: true },
     UserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
     UnitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true }, 
-    AdditionalPax: { type: Number, min: 1, required: true },
+    AdditionalPax: { type: Number, min: 0, required: true },
     Reservation: { type: Number, Default: 500 },
     isSuccess: { type: Boolean, Default: false, set: v => v === 'TRUE' },
     Status: { type: String, Default: "No status" },

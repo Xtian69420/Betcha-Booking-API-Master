@@ -51,6 +51,7 @@ const UnitSchema = new mongoose.Schema({
     isAvailable: { type: Boolean, default: false },
     maxPax: { type: Number, required: true, min: 1 },
     pricePerPax: { type: Number, required: true },
+    packageCapacity: { type: Number, required: true},
     UnitImages: [ImageSchema]
 }, {
     collection: 'unit_tb'
