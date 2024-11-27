@@ -63,6 +63,7 @@ exports.addUnit = (req, res) => {
       amenities, 
       otherAmenities, 
       unitPrice, 
+      reservation,
       packageCapacity,
       isAvailable, 
       maxPax, 
@@ -99,6 +100,7 @@ exports.addUnit = (req, res) => {
         amenities: JSON.parse(amenities || "{}"),
         otherAmenities,
         unitPrice,
+        reservation,
         packageCapacity,
         isAvailable,
         maxPax,
@@ -235,6 +237,10 @@ exports.editUnit = (req, res) => {
 
       if (updates.packageCapacity) {
         updates.packageCapacity = updates.packageCapacity;
+      }
+
+      if (updates.reservation) {
+        updates.reservation = JSON.parse(updates.reservation);
       }
 
       const updatedUnit = await Unit.findByIdAndUpdate(req.params.id, updates, {

@@ -390,8 +390,6 @@ exports.getAllDatesForAllUnits = async (req, res) => {
                 allBookedDates.push(dateEntry.Date);
             });
         });
-
-        // Sort the dates in ascending order
         allBookedDates.sort((a, b) => new Date(a) - new Date(b));
 
         res.status(200).json({ message: "All booked dates retrieved successfully", bookedDates: allBookedDates });
