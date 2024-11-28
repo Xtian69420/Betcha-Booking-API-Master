@@ -153,6 +153,7 @@ app.post('/otp/bookMail', otpController.BookingMessage);
 
 // FAQs_Routes
 app.post('/faqs/create', faqsController.CreateFaqs);
+app.delete('/faqs/delete/:id', faqsController.Deletefaqs);
 app.get('/faqs/getAll', faqsController.GetAllFaqs);
 app.get('/faqs/get/:id', faqsController.GetSpecificFaqs);
 app.put('/faqs/update/:id', faqsController.UpdateFaqs);
