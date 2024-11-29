@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
 
     isVerified: { type: Boolean, default: false},
-    role: { type: String, default: "User" },
+    role: { type: String, default: "Customer" },
 
     profileImage: {
         filename: { type: String, default: '672fa43f474960c8a5765da8'}, 
