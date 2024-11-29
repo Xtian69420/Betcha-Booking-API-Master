@@ -62,6 +62,7 @@ exports.Book = async (req, res) => {
             UserId,
             UnitId,
             BookDates: BookDates.map(date => ({ Date: date })),
+            NumOfDays: daysBooked,
             AdditionalPax,
             Total: totalAmount,
             isSuccess: true,
@@ -115,9 +116,8 @@ exports.EditStatus = async (req, res) => {
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
-
         const now = new Date();
-        const formattedDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const formattedDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
         booking.EditStatusDates.push({
             Date: formattedDateTime,
@@ -126,6 +126,9 @@ exports.EditStatus = async (req, res) => {
 
         booking.Status = Status;
 
+        if (["Cancelled", "Did not arrived", "Unpaid"].includes(Status)) {
+            booking.BookDates = [];
+        }
         await booking.save();
 
         res.status(200).json({ message: 'Booking status successfully updated', booking });
@@ -135,6 +138,31 @@ exports.EditStatus = async (req, res) => {
     }
 };
 
+exports.addNumDays = async (req,res)=>{
+    try {
+        const { reference, numdays } = req.body;
+
+        const booking = await BookingsModel.findOne({ Reference: reference });
+        if (!booking) {
+            return res.status(404).json({ message: "Booking not found" });
+        }
+        const now = new Date();
+        const formattedDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        booking.EditStatusDates.push({
+            Date: formattedDateTime,
+            Update: numdays
+        });
+
+        booking.NumOfDays = numdays;
+        await booking.save();
+
+        res.status(200).json({ message: 'Booking numdays successfully updated', booking });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating booking numdays', error });
+    }
+};
 
 exports.getBookingUnit = async (req, res) => {
     try {

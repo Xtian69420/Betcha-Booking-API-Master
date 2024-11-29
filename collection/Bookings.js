@@ -22,6 +22,7 @@ const BookingSchema = mongoose.Schema({
     CheckIn: { type: String, required: true },
     BookDates: [{ 
         Date: {type: String, required: true }}],
+    NumOfDays: {type: Number, minimum: 1},
     CheckOut: { type: String, required: true },
     UserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
     UnitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true }, 
