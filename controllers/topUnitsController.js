@@ -54,9 +54,6 @@ exports.getMonth = async (req, res) => {
         const startOfMonth = new Date(year, month - 1, 1);  
         const endOfMonth = new Date(year, month, 0);  
 
-        console.log('Start of Month:', startOfMonth);
-        console.log('End of Month:', endOfMonth);
-
         const stats = await calculateUnitStats({
             CheckIn: { $gte: startOfMonth.toISOString(), $lte: endOfMonth.toISOString() },
         });
@@ -78,9 +75,6 @@ exports.getAnnual = async (req, res) => {
 
         const startOfYear = new Date(year, 0, 1);  
         const endOfYear = new Date(year, 11, 31);  
-
-        console.log('Start of Year:', startOfYear);
-        console.log('End of Year:', endOfYear);
 
         const stats = await calculateUnitStats({
             CheckIn: { $gte: startOfYear.toISOString(), $lte: endOfYear.toISOString() },
