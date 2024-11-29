@@ -113,6 +113,9 @@ app.get('/bookings/successful', bookingController.getAllSuccessful);
 app.get('/getBookingByDate/:date', bookingController.getBookingByDate);
 app.get('/getBookingByDateandUnit/:date/:unitId', bookingController.getBookingByDateAndUnit);
 app.get('/bookings/all-dates', bookingController.getAllDatesForAllUnits);
+
+app.get('/earnings/thisMonth', bookingController.getThisMonthEarnings);
+app.get('/earnings/thisYear', bookingController.getThisYearEarnings);
 app.delete('/booking/:reference', bookingController.deleteBooking);
 
 // Notification_Routes

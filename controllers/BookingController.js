@@ -1,6 +1,7 @@
 const BookingsModel = require('../collection/Bookings');
 const UnitModel = require('../collection/Unit');
 const CounterModel = require('../collection/Counter'); 
+const PaymentModel = require('../collection/Payment');
 const mongoose = require('mongoose');
 
 const generateDateRange = (checkIn, checkOut) => {
@@ -396,5 +397,81 @@ exports.getAllDatesForAllUnits = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error fetching booked dates", error });
+    }
+};
+
+const getCurrentMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; 
+}
+
+const getCurrentYear = () => {
+    const now = new Date();
+    return `${now.getFullYear()}`;
+}
+
+exports.getThisMonthEarnings = async (req, res) => {
+    try {
+        const currentMonth = getCurrentMonth(); 
+
+        const earnings = await PaymentModel.aggregate([
+            {
+                $match: {
+                    Date: { $regex: `^${currentMonth}` }, 
+                    Status: { $in: ['Successful', 'Reserved', 'Fully-Paid'] } 
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalEarnings: { $sum: '$Amount' } 
+                }
+            }
+        ]);
+
+        if (earnings.length === 0) {
+            return res.status(404).json({ message: "No earnings found for this month" });
+        }
+
+        res.status(200).json({
+            message: "Monthly earnings retrieved successfully",
+            earnings: earnings[0].totalEarnings
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving monthly earnings', error });
+    }
+};
+
+exports.getThisYearEarnings = async (req, res) => {
+    try {
+        const currentYear = getCurrentYear(); 
+
+        const earnings = await PaymentModel.aggregate([
+            {
+                $match: {
+                    Date: { $regex: `^${currentYear}` }, 
+                    Status: { $in: ['Successful', 'Reserved', 'Fully-Paid'] } 
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalEarnings: { $sum: '$Amount' }
+                }
+            }
+        ]);
+
+        if (earnings.length === 0) {
+            return res.status(404).json({ message: "No earnings found for this year" });
+        }
+
+        res.status(200).json({
+            message: "Yearly earnings retrieved successfully",
+            earnings: earnings[0].totalEarnings
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving yearly earnings', error });
     }
 };
