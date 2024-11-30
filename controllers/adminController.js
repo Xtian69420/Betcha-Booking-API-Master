@@ -46,7 +46,8 @@ exports.loginAdmin = async (req, res) => {
         return res.json({
             message: 'Login Admin Successfully!',
             token,
-            adminId: admin._id
+            adminId: admin._id,
+            role: admin.role
         });  // Ends the request by sending a response with the token
     } catch (error) {
         console.error('Error during login:', error);

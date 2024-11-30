@@ -129,7 +129,8 @@ exports.loginUser = async (req, res) => {
       return res.json({
           message: 'Login successful!',
           token,
-          userId: user._id
+          userId: user._id,
+          role: user.role
       }); // Ends the request by sending a response with the token
   } catch (error) {
       console.error('Error during login:', error);
