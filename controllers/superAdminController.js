@@ -100,9 +100,17 @@ exports.updateSuperAdmin = async (req, res) => {
     }
 };
 
+const mongoose = require('mongoose');
+
 exports.getSuperAdminInfo = async (req, res) => {
     try {
-        const superAdminId = req.params.superAdminId; 
+        const superAdminId = req.params.superAdminId;
+
+        if (!mongoose.Types.ObjectId.isValid(superAdminId)) {
+            return res.status(404).json({
+                error: 'Invalid SuperAdmin ID'
+            });
+        }
 
         const superAdmin = await SuperAdmin.findById(superAdminId); 
         if (!superAdmin) {
@@ -110,6 +118,7 @@ exports.getSuperAdminInfo = async (req, res) => {
                 error: 'SuperAdmin not found'
             });
         }
+
         res.status(200).json({
             message: 'SuperAdmin fetched successfully',
             data: superAdmin
@@ -118,6 +127,7 @@ exports.getSuperAdminInfo = async (req, res) => {
         res.status(500).json({ error: 'Error fetching SuperAdmin', details: error.message });
     }
 };
+
 
 exports.getAllSuperAdmin = async (req, res) => {
     try {
