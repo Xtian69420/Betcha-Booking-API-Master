@@ -62,6 +62,7 @@ app.delete('/deleteUser/:userId', userController.deleteUser);
 
 // ID_Confirmation_Routes
   app.get('/users/unverified', userController.getUnverifiedUsers);
+  app.get('/users/verified', userController.getVerifiedUsers);
 // same as app.put('/updateUser/:userId', userController.updateUser);
 
 // User_Profile_Routes

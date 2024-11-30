@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
 
     isVerified: { type: Boolean, default: false},
     role: { type: String, default: "Customer" },
-
+    bday: { type: String, required: true},
     profileImage: {
         filename: { type: String, default: '672fa43f474960c8a5765da8'}, 
         name: {type: String, default: 'Default Profile'},

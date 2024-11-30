@@ -58,8 +58,8 @@ exports.registerUser = (req, res) => {
 
     console.log('Uploaded file:', req.file);
 
-    const { email, password, phoneNumber, firstName, middleInitial, lastName, isVerified } = req.body;
-    if (!email || !password || !firstName || !lastName) {
+    const { email, password, phoneNumber, firstName, middleInitial, lastName, bday, isVerified } = req.body;
+    if (!email || !password || !firstName || !lastName || !bday) {
       return res.status(400).json({ error: 'Required fields: email, password, firstName, lastName!' });
     }
 
@@ -81,6 +81,7 @@ exports.registerUser = (req, res) => {
         firstName,
         middleInitial,
         lastName,
+        bday,
         isVerified,
         IdImage: uploadedFile
           ? {
@@ -202,7 +203,7 @@ exports.getUserIdImage = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.userId; 
-  const { email, password, phoneNumber, firstName, middleInitial, lastName } = req.body || req.query;
+  const { email, password, phoneNumber, firstName, middleInitial, lastName, bday, isVerified } = req.body || req.query;
 
   try {
     const user = await User.findById(userId);
@@ -219,6 +220,8 @@ exports.updateUser = async (req, res) => {
     if (firstName) updatedData.firstName = firstName;
     if (middleInitial) updatedData.middleInitial = middleInitial;
     if (lastName) updatedData.lastName = lastName;
+    if (bday) updatedData.bday = bday;
+    if (isVerified) updatedData.isVerified = isVerified;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
 
@@ -377,5 +380,24 @@ exports.getUnverifiedUsers = async (req, res) => {
   } catch (error) {
     console.error('Error fetching unverified users:', error);
     res.status(500).json({ error: 'Failed to fetch unverified users', details: error.message });
+  }
+};
+
+exports.getVerifiedUsers = async (req, res) => {
+  try {
+    const unverifiedUsers = await User.find({ isVerified: true });
+
+    if (unverifiedUsers.length === 0) {
+      return res.status(404).json({ message: 'No verified users found' });
+    }
+
+    res.status(200).json({
+      message: 'verified users fetched successfully',
+      count: unverifiedUsers.length,
+      data: unverifiedUsers,
+    });
+  } catch (error) {
+    console.error('Error fetching verified users:', error);
+    res.status(500).json({ error: 'Failed to fetch verified users', details: error.message });
   }
 };
