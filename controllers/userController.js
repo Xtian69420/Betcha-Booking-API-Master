@@ -222,7 +222,9 @@ exports.updateUser = async (req, res) => {
     if (middleInitial) updatedData.middleInitial = middleInitial;
     if (lastName) updatedData.lastName = lastName;
     if (bday) updatedData.bday = bday;
-    if (isVerified) updatedData.isVerified = isVerified;
+    if (isVerified !== undefined && isVerified !== null) {
+      updatedData.isVerified = isVerified;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
 
