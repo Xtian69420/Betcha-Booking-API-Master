@@ -463,25 +463,27 @@ exports.getAllDatesForAllUnits = async (req, res) => {
     }
 };
 
+const moment = require('moment-timezone');
+
+// Function to get the current month in Manila timezone
 const getCurrentMonth = () => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const now = moment().tz('Asia/Manila');  // Set timezone to Manila
+    return `${now.year()}-${String(now.month() + 1).padStart(2, '0')}`; // Use year and month
 };
 
+// Function to get the current year in Manila timezone
 const getCurrentYear = () => {
-    const now = new Date();
-    return `${now.getFullYear()}`;
+    const now = moment().tz('Asia/Manila');  // Set timezone to Manila
+    return `${now.year()}`; // Use year
 };
-
 
 exports.getThisMonthEarnings = async (req, res) => {
     try {
         const currentMonth = getCurrentMonth(); // Get current month
         
-        // Determine the start and end of the current month
-        const startOfMonth = new Date(`${currentMonth}-01`);
-        const endOfMonth = new Date(startOfMonth);
-        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Set to the next month
+        // Determine the start and end of the current month in Manila timezone
+        const startOfMonth = moment.tz(`${currentMonth}-01`, 'Asia/Manila').startOf('month').toDate();
+        const endOfMonth = moment(startOfMonth).endOf('month').toDate();
 
         // Log start and end of month for debugging
         console.log('Start of Month:', startOfMonth);
@@ -512,9 +514,8 @@ exports.getThisMonthEarnings = async (req, res) => {
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this month" });
         }
-        console.log('this month:',earnings[0].totalEarnings);
+        console.log('This Month Earnings:', earnings[0].totalEarnings);
         res.status(200).json({
-            
             message: "Monthly earnings retrieved successfully",
             earnings: earnings[0].totalEarnings,
             period: "this month"
@@ -527,8 +528,8 @@ exports.getThisMonthEarnings = async (req, res) => {
 
 exports.getThisYearEarnings = async (req, res) => {
     try {
-        const startOfYear = new Date('2024-01-01T00:00:00.000Z');
-        const endOfYear = new Date('2024-12-31T23:59:59.000Z');
+        const startOfYear = moment.tz('2024-01-01', 'Asia/Manila').startOf('year').toDate();
+        const endOfYear = moment.tz('2024-12-31', 'Asia/Manila').endOf('year').toDate();
 
         console.log("Start of year:", startOfYear);
         console.log("End of year:", endOfYear);
@@ -555,7 +556,7 @@ exports.getThisYearEarnings = async (req, res) => {
             }
         ]);
 
-        console.log("Earnings:", earnings); 
+        console.log("Yearly Earnings:", earnings); 
 
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this year" });
