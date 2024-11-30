@@ -105,14 +105,13 @@ const mongoose = require('mongoose');
 exports.getSuperAdminInfo = async (req, res) => {
     try {
         const superAdminId = req.params.superAdminId;
-
         if (!mongoose.Types.ObjectId.isValid(superAdminId)) {
             return res.status(404).json({
-                error: 'Invalid SuperAdmin ID'
+                error: 'Invalid SuperAdmin ID format'
             });
         }
 
-        const superAdmin = await SuperAdmin.findById(superAdminId); 
+        const superAdmin = await SuperAdmin.findById(superAdminId);
         if (!superAdmin) {
             return res.status(404).json({
                 error: 'SuperAdmin not found'
