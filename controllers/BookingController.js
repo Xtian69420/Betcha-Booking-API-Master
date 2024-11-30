@@ -463,25 +463,22 @@ exports.getAllDatesForAllUnits = async (req, res) => {
     }
 };
 
-// Helper function to get the current month
 const getCurrentMonth = () => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
-// Helper function to get the current year
 const getCurrentYear = () => {
     const now = new Date();
     return `${now.getFullYear()}`;
 };
 
 
-// Get earnings for this month based on bookings' CheckIn and CheckOut dates
 exports.getThisMonthEarnings = async (req, res) => {
     try {
-        const currentMonth = new Date(); // Get current date
-        const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1); // Start of the current month
-        const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0); // End of the current month
+        const currentMonth = new Date(); 
+        const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+        const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0); 
 
         console.log("Start of month:", startOfMonth);
         console.log("End of month:", endOfMonth);
@@ -497,18 +494,18 @@ exports.getThisMonthEarnings = async (req, res) => {
             },
             {
                 $match: {
-                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  // Filter statuses to include only relevant ones
+                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  
                 }
             },
             {
                 $group: {
                     _id: null,
-                    totalEarnings: { $sum: '$Total' }  // Summing the Total field in bookings_tb
+                    totalEarnings: { $sum: '$Total' }  
                 }
             }
         ]);
 
-        console.log("Earnings:", earnings);  // Log the earnings for debugging
+        console.log("Earnings:", earnings); 
 
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this month" });
@@ -525,7 +522,6 @@ exports.getThisMonthEarnings = async (req, res) => {
     }
 };
 
-// Get earnings for this year based on bookings' CheckIn and CheckOut dates
 exports.getThisYearEarnings = async (req, res) => {
     try {
         const startOfYear = new Date('2024-01-01T00:00:00.000Z');
@@ -545,18 +541,18 @@ exports.getThisYearEarnings = async (req, res) => {
             },
             {
                 $match: {
-                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  // Filter statuses to include only relevant ones
+                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  
                 }
             },
             {
                 $group: {
                     _id: null,
-                    totalEarnings: { $sum: '$Total' }  // Summing the Total field in bookings_tb
+                    totalEarnings: { $sum: '$Total' }  
                 }
             }
         ]);
 
-        console.log("Earnings:", earnings);  // Log the earnings for debugging
+        console.log("Earnings:", earnings); 
 
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this year" });
