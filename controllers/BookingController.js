@@ -476,19 +476,23 @@ const getCurrentYear = () => {
 
 exports.getThisMonthEarnings = async (req, res) => {
     try {
-        const currentMonth = new Date(); 
-        const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-        const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0); 
+        const currentMonth = getCurrentMonth(); // Get current month
+        
+        // Determine the start and end of the current month
+        const startOfMonth = new Date(`${currentMonth}-01`);
+        const endOfMonth = new Date(startOfMonth);
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Set to the next month
 
-        console.log("Start of month:", startOfMonth);
-        console.log("End of month:", endOfMonth);
+        // Log start and end of month for debugging
+        console.log('Start of Month:', startOfMonth);
+        console.log('End of Month:', endOfMonth);
 
         const earnings = await BookingsModel.aggregate([
             {
                 $match: {
                     $or: [
-                        { CheckIn: { $gte: startOfMonth, $lte: endOfMonth } },
-                        { CheckOut: { $gte: startOfMonth, $lte: endOfMonth } }
+                        { CheckIn: { $gte: startOfMonth, $lt: endOfMonth } },
+                        { CheckOut: { $gte: startOfMonth, $lt: endOfMonth } }
                     ]
                 }
             },
@@ -505,13 +509,12 @@ exports.getThisMonthEarnings = async (req, res) => {
             }
         ]);
 
-        console.log("Earnings:", earnings); 
-
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this month" });
         }
-
+        console.log('this month:',earnings[0].totalEarnings);
         res.status(200).json({
+            
             message: "Monthly earnings retrieved successfully",
             earnings: earnings[0].totalEarnings,
             period: "this month"
