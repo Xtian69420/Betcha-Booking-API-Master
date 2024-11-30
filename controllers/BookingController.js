@@ -483,7 +483,7 @@ exports.getThisMonthEarnings = async (req, res) => {
         
         // Determine the start and end of the current month in Manila timezone
         const startOfMonth = moment.tz(`${currentMonth}-01`, 'Asia/Manila').startOf('month').toDate();
-        const endOfMonth = moment(startOfMonth).endOf('month').toDate();
+        const endOfMonth = moment.tz(`${currentMonth}-01`, 'Asia/Manila').endOf('month').toDate();
 
         // Log start and end of month for debugging
         console.log('Start of Month:', startOfMonth);
