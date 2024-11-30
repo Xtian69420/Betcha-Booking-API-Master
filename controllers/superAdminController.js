@@ -23,7 +23,7 @@ exports.createSuperAdmin = async (req, res) => {
 };
 
 exports.loginSuperAdmin = async (req, res) => {
-    const { email, password } = req.body || res.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required!' });
@@ -32,24 +32,27 @@ exports.loginSuperAdmin = async (req, res) => {
     try {
         const superAdmin = await SuperAdmin.findOne({ email });
         if (!superAdmin) {
-            return res.status(404).json({ error: 'SuperAdmin not found' });
+            return res.status(404).json({ error: 'SuperAdmin not found' }); // Ends request if super admin is not found
         }
+
         const isMatch = await bcrypt.compare(password, superAdmin.password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid SuperAdmin credentials!' });
+            return res.status(400).json({ error: 'Invalid SuperAdmin credentials!' }); // Ends request if password doesn't match
         }
 
         const token = jwt.sign({ id: superAdmin._id }, 'your_jwt_secret', { expiresIn: '1h' });
 
-        res.json({
+        return res.json({
             message: 'Login SuperAdmin successfully!',
             token,
             superAdminId: superAdmin._id
-        });
+        }); // Ends the request by sending a response with the token
     } catch (error) {
-        res.status(500).json({ error: 'Login failed', details: error.message });
+        console.error('Error during login:', error);
+        return res.status(500).json({ error: 'Login failed', details: error.message }); // Ensures the request ends with an error message
     }
 };
+
 
 exports.deleteSuperAdmin = async (req, res) => {
     const superAdminId = req.params.superAdminId;

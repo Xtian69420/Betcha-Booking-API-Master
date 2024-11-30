@@ -107,36 +107,36 @@ exports.registerUser = (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-  const email = req.body.email || req.query.email; 
-  const password = req.body.password || req.query.password; 
+  const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required!' });
+      return res.status(400).json({ error: 'Email and password are required!' });
   }
 
   try {
-    const user = await User.findOne({ email });
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(404).json({ error: 'Customer not found' }); // Ends request if customer is not found
+      }
 
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials!' });
-    }
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+          return res.status(400).json({ error: 'Invalid credentials!' }); // Ends request if password doesn't match
+      }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
+      const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
 
-    const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
-
-    res.json({
-      message: 'Login successful!',
-      token,
-      userId: user._id  
-    });
+      return res.json({
+          message: 'Login successful!',
+          token,
+          userId: user._id
+      }); // Ends the request by sending a response with the token
   } catch (error) {
-    res.status(500).json({ error: 'Login failed', details: error.message });
+      console.error('Error during login:', error);
+      return res.status(500).json({ error: 'Login failed', details: error.message }); // Ensures the request ends with an error message
   }
 };
+
 
 exports.getUserById = async (req, res) => {
   try {

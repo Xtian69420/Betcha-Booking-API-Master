@@ -23,34 +23,37 @@ exports.createAdmin = async (req, res)=>{
     }   
 };
 
-exports.loginAdmin = async (req, res)=> {
-    const {email, password} = req.body || res.body
+exports.loginAdmin = async (req, res) => {
+    const { email, password } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required!' });
     }
 
-    try{
-        const admin = await Admin.findOne({email});
-        if(!admin){
-            res.status(404).json({ error: 'Admin not found'})
+    try {
+        const admin = await Admin.findOne({ email });
+        if (!admin) {
+            return res.status(404).json({ error: 'Admin not found' }); // Ends request if admin is not found
         }
+
         const isMatch = await bcrypt.compare(password, admin.password);
-        if(!isMatch){
-            res.status(400).json({ error: 'Invalid admnin Credentials!'})
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Invalid admin credentials!' }); // Ends request if password doesn't match
         }
 
         const token = jwt.sign({ id: admin._id }, 'your_jwt_secret', { expiresIn: '1h' });
 
-        res.json({
+        return res.json({
             message: 'Login Admin Successfully!',
             token,
-            adminId: admin._id 
-        });
-    }catch (error) {
-        res.status(500).json({ error: 'Login failed', details: error.message });
+            adminId: admin._id
+        });  // Ends the request by sending a response with the token
+    } catch (error) {
+        console.error('Error during login:', error);
+        return res.status(500).json({ error: 'Login failed', details: error.message }); // Ensures the request ends with an error message
     }
-}
+};
+
 
 exports.deleteAdmin = async (req, res)=>{
     const adminId = req.params.adminId;
