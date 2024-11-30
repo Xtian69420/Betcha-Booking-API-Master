@@ -102,9 +102,9 @@ exports.updateSuperAdmin = async (req, res) => {
 
 exports.getSuperAdminInfo = async (req, res) => {
     try {
-        const superAdminId = req.params.superAdminId;
+        const superAdminId = req.params.superAdminId; 
 
-        const superAdmin = await SuperAdmin.findById(superAdminId);
+        const superAdmin = await SuperAdmin.findById(superAdminId); 
         if (!superAdmin) {
             return res.status(404).json({
                 error: 'SuperAdmin not found'
@@ -128,21 +128,22 @@ exports.getAllSuperAdmin = async (req, res) => {
     }
 };
 
-exports.getSuperAdminInfo = async (req, res) =>{
-    try{
-        const SuperadminId = req.params.superAdminId;
+exports.getSuperAdminInfo = async (req, res) => {
+    try {
+        const superAdminId = req.params.superAdminId;
 
-        const Superadmin = await SuperAdmin.findById(SuperadminId);
-        if (!Superadmin){
-            res.status(404).json({
-                error: 'Super Admin not found'
-            })
+        const superAdmin = await SuperAdmin.findById(superAdminId); // The variable name here should be `superAdmin`, not `Superadmin`
+        if (!superAdmin) {
+            return res.status(404).json({
+                error: 'SuperAdmin not found'
+            });
         }
         res.status(200).json({
-            message: 'Super Admin fetched successfully',
-            data: admin
-          });
+            message: 'SuperAdmin fetched successfully',
+            data: superAdmin // Use `superAdmin` instead of `admin`
+        });
     } catch (error) {
-    res.status(500).json({ error: 'Error fetching Super admin', details: error.message });
+        res.status(500).json({ error: 'Error fetching SuperAdmin', details: error.message });
     }
-}
+};
+
