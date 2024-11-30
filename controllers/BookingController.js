@@ -471,23 +471,17 @@ const getCurrentMonth = () => {
     return `${now.year()}-${String(now.month() + 1).padStart(2, '0')}`; // Use year and month
 };
 
-// Function to get the current year in Manila timezone
 const getCurrentYear = () => {
-    const now = moment().tz('Asia/Manila');  // Set timezone to Manila
-    return `${now.year()}`; // Use year
+    const now = moment().tz('Asia/Manila'); 
+    return `${now.year()}`; 
 };
 
 exports.getThisMonthEarnings = async (req, res) => {
     try {
-        const currentMonth = getCurrentMonth(); // Get current month
+        const currentMonth = getCurrentMonth(); 
         
-        // Determine the start and end of the current month in Manila timezone
         const startOfMonth = moment.tz(`${currentMonth}-01`, 'Asia/Manila').startOf('month').toDate();
         const endOfMonth = moment.tz(`${currentMonth}-01`, 'Asia/Manila').endOf('month').toDate();
-
-        // Log start and end of month for debugging
-        console.log('Start of Month:', startOfMonth);
-        console.log('End of Month:', endOfMonth);
 
         const earnings = await BookingsModel.aggregate([
             {
@@ -514,7 +508,6 @@ exports.getThisMonthEarnings = async (req, res) => {
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this month" });
         }
-        console.log('This Month Earnings:', earnings[0].totalEarnings);
         res.status(200).json({
             message: "Monthly earnings retrieved successfully",
             earnings: earnings[0].totalEarnings,
@@ -530,9 +523,6 @@ exports.getThisYearEarnings = async (req, res) => {
     try {
         const startOfYear = moment.tz('2024-01-01', 'Asia/Manila').startOf('year').toDate();
         const endOfYear = moment.tz('2024-12-31', 'Asia/Manila').endOf('year').toDate();
-
-        console.log("Start of year:", startOfYear);
-        console.log("End of year:", endOfYear);
 
         const earnings = await BookingsModel.aggregate([
             {
@@ -555,8 +545,6 @@ exports.getThisYearEarnings = async (req, res) => {
                 }
             }
         ]);
-
-        console.log("Yearly Earnings:", earnings); 
 
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this year" });
