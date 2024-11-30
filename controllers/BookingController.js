@@ -29,9 +29,25 @@ const generateReference = async () => {
 exports.Book = async (req, res) => {
     try {
         const { CheckIn, CheckOut, UserId, UnitId, AdditionalPax } = req.body;
-        
-        const BookDates = generateDateRange(CheckIn, CheckOut);
-        
+
+        // Convert CheckIn and CheckOut to ISODate if they are strings
+        const convertToISODate = (date) => {
+            if (typeof date === "string") {
+                const normalizedDate = new Date(date);
+                return normalizedDate instanceof Date && !isNaN(normalizedDate) ? normalizedDate : null;
+            }
+            return date;
+        };
+
+        const isoCheckIn = convertToISODate(CheckIn);
+        const isoCheckOut = convertToISODate(CheckOut);
+
+        if (!isoCheckIn || !isoCheckOut) {
+            return res.status(400).json({ message: "Invalid CheckIn or CheckOut date format" });
+        }
+
+        const BookDates = generateDateRange(isoCheckIn, isoCheckOut);
+
         const unit = await UnitModel.findById(UnitId);
         if (!unit) {
             return res.status(404).json({ message: "Unit not found" });
@@ -41,10 +57,11 @@ exports.Book = async (req, res) => {
             UnitId,
             'BookDates.Date': { $in: BookDates }
         });
-        
+
         if (existingBookings.length > 0) {
             return res.status(400).json({ message: "Unit is already booked for selected dates" });
         }
+
         const daysBooked = BookDates.length;
         const pricePerDay = unit.unitPrice;
         const pricePerPax = unit.pricePerPax;
@@ -56,9 +73,9 @@ exports.Book = async (req, res) => {
 
         const newBooking = new BookingsModel({
             Reference,
-            Date: new Date().toISOString().split('T')[0], 
-            CheckIn,
-            CheckOut,
+            Date: new Date().toISOString().split('T')[0],
+            CheckIn: isoCheckIn,
+            CheckOut: isoCheckOut,
             UserId,
             UnitId,
             BookDates: BookDates.map(date => ({ Date: date })),
@@ -80,7 +97,24 @@ exports.Book = async (req, res) => {
 exports.EditDate = async (req, res) => {
     try {
         const { reference, CheckIn, CheckOut } = req.body;
-        const BookDates = generateDateRange(CheckIn, CheckOut);
+
+        // Convert CheckIn and CheckOut to ISODate if they are strings
+        const convertToISODate = (date) => {
+            if (typeof date === "string") {
+                const normalizedDate = new Date(date);
+                return normalizedDate instanceof Date && !isNaN(normalizedDate) ? normalizedDate : null;
+            }
+            return date;
+        };
+
+        const isoCheckIn = convertToISODate(CheckIn);
+        const isoCheckOut = convertToISODate(CheckOut);
+
+        if (!isoCheckIn || !isoCheckOut) {
+            return res.status(400).json({ message: "Invalid CheckIn or CheckOut date format" });
+        }
+
+        const BookDates = generateDateRange(isoCheckIn, isoCheckOut);
 
         const booking = await BookingsModel.findOne({ Reference: reference });
         if (!booking) {
@@ -96,8 +130,8 @@ exports.EditDate = async (req, res) => {
             return res.status(400).json({ message: "Unit is already booked for selected dates" });
         }
 
-        booking.CheckIn = CheckIn;
-        booking.CheckOut = CheckOut;
+        booking.CheckIn = isoCheckIn;
+        booking.CheckOut = isoCheckOut;
         booking.BookDates = BookDates.map(date => ({ Date: date }));
 
         await booking.save();
@@ -107,6 +141,7 @@ exports.EditDate = async (req, res) => {
         res.status(500).json({ message: 'Error updating booking dates', error });
     }
 };
+
 
 exports.EditStatus = async (req, res) => {
     try {
@@ -428,34 +463,52 @@ exports.getAllDatesForAllUnits = async (req, res) => {
     }
 };
 
+// Helper function to get the current month
 const getCurrentMonth = () => {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; 
-}
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+};
 
+// Helper function to get the current year
 const getCurrentYear = () => {
     const now = new Date();
     return `${now.getFullYear()}`;
-}
+};
 
+
+// Get earnings for this month based on bookings' CheckIn and CheckOut dates
 exports.getThisMonthEarnings = async (req, res) => {
     try {
-        const currentMonth = getCurrentMonth(); 
+        const currentMonth = new Date(); // Get current date
+        const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1); // Start of the current month
+        const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0); // End of the current month
 
-        const earnings = await PaymentModel.aggregate([
+        console.log("Start of month:", startOfMonth);
+        console.log("End of month:", endOfMonth);
+
+        const earnings = await BookingsModel.aggregate([
             {
                 $match: {
-                    Date: { $regex: `^${currentMonth}` }, 
-                    Status: { $in: ['Successful', 'Reserved', 'Fully-Paid'] } 
+                    $or: [
+                        { CheckIn: { $gte: startOfMonth, $lte: endOfMonth } },
+                        { CheckOut: { $gte: startOfMonth, $lte: endOfMonth } }
+                    ]
+                }
+            },
+            {
+                $match: {
+                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  // Filter statuses to include only relevant ones
                 }
             },
             {
                 $group: {
                     _id: null,
-                    totalEarnings: { $sum: '$Amount' } 
+                    totalEarnings: { $sum: '$Total' }  // Summing the Total field in bookings_tb
                 }
             }
         ]);
+
+        console.log("Earnings:", earnings);  // Log the earnings for debugging
 
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this month" });
@@ -463,7 +516,8 @@ exports.getThisMonthEarnings = async (req, res) => {
 
         res.status(200).json({
             message: "Monthly earnings retrieved successfully",
-            earnings: earnings[0].totalEarnings
+            earnings: earnings[0].totalEarnings,
+            period: "this month"
         });
     } catch (error) {
         console.error(error);
@@ -471,24 +525,38 @@ exports.getThisMonthEarnings = async (req, res) => {
     }
 };
 
+// Get earnings for this year based on bookings' CheckIn and CheckOut dates
 exports.getThisYearEarnings = async (req, res) => {
     try {
-        const currentYear = getCurrentYear(); 
+        const startOfYear = new Date('2024-01-01T00:00:00.000Z');
+        const endOfYear = new Date('2024-12-31T23:59:59.000Z');
 
-        const earnings = await PaymentModel.aggregate([
+        console.log("Start of year:", startOfYear);
+        console.log("End of year:", endOfYear);
+
+        const earnings = await BookingsModel.aggregate([
             {
                 $match: {
-                    Date: { $regex: `^${currentYear}` }, 
-                    Status: { $in: ['Successful', 'Reserved', 'Fully-Paid'] } 
+                    $or: [
+                        { CheckIn: { $gte: startOfYear, $lte: endOfYear } },
+                        { CheckOut: { $gte: startOfYear, $lte: endOfYear } }
+                    ]
+                }
+            },
+            {
+                $match: {
+                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  // Filter statuses to include only relevant ones
                 }
             },
             {
                 $group: {
                     _id: null,
-                    totalEarnings: { $sum: '$Amount' }
+                    totalEarnings: { $sum: '$Total' }  // Summing the Total field in bookings_tb
                 }
             }
         ]);
+
+        console.log("Earnings:", earnings);  // Log the earnings for debugging
 
         if (earnings.length === 0) {
             return res.status(404).json({ message: "No earnings found for this year" });
@@ -496,7 +564,8 @@ exports.getThisYearEarnings = async (req, res) => {
 
         res.status(200).json({
             message: "Yearly earnings retrieved successfully",
-            earnings: earnings[0].totalEarnings
+            earnings: earnings[0].totalEarnings,
+            period: "this year"
         });
     } catch (error) {
         console.error(error);

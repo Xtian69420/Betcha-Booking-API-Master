@@ -18,12 +18,13 @@ initializeCounter();*/
 
 const BookingSchema = mongoose.Schema({
     Reference: { type: String, required: true },
-    Date: { type: String, required: true },
-    CheckIn: { type: String, required: true },
+    Date: { type: Date, required: true }, 
+    CheckIn: { type: Date, required: true }, 
     BookDates: [{ 
-        Date: {type: String, required: true }}],
-    NumOfDays: {type: Number, minimum: 1},
-    CheckOut: { type: String, required: true },
+        Date: {type: String, required: true } 
+    }],
+    NumOfDays: { type: Number, minimum: 1 },
+    CheckOut: { type: Date, required: true }, 
     UserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
     UnitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true }, 
     AdditionalPax: { type: Number, min: 0, required: true },
@@ -32,11 +33,12 @@ const BookingSchema = mongoose.Schema({
     Status: { type: String, Default: "No status" },
     PaymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Payments'}, 
     Total: { type: Number, required: true },
-    EditStatusDates:[{
-        Date: {type: String},
-        Update: {type: String}
+    EditStatusDates: [{
+        Date: { type: Date },
+        Update: { type: String }
     }]
-},{
+}, {
     collection: 'bookings_tb'
-})
+});
+
 module.exports = mongoose.model('Bookings', BookingSchema);
