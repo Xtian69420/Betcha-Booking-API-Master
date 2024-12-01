@@ -9,7 +9,7 @@ const calculateUnitStats = async (filter = {}) => {
 
     bookings.forEach((booking) => {
         const { UnitId, BookDates, Total, status } = booking;
-        if (["Cancelled", "Did not arrive", "Unpaid"].includes(status)) {
+        if (["Cancelled", "Did not arrived", "Unpaid"].includes(status)) {
             return; 
         }
 
