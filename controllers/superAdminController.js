@@ -46,6 +46,7 @@ exports.loginSuperAdmin = async (req, res) => {
             message: 'Login SuperAdmin successfully!',
             token,
             superAdminId: superAdmin._id,
+            superAdminName: superAdmin.superAdminName,
             role: superAdmin.role
         }); // Ends the request by sending a response with the token
     } catch (error) {
