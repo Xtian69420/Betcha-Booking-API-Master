@@ -465,21 +465,23 @@ exports.getAllDatesForAllUnits = async (req, res) => {
 
 const moment = require('moment-timezone');
 
-// Function to get the current month in Manila timezone
 const getCurrentMonth = () => {
-    const now = moment().tz('Asia/Manila');  // Set timezone to Manila
-    return `${now.year()}-${String(now.month() + 1).padStart(2, '0')}`; // Use year and month
+    const now = moment().tz('Asia/Manila');
+    return `${now.year()}-${String(now.month() + 1).padStart(2, '0')}`;
 };
 
 const getCurrentYear = () => {
-    const now = moment().tz('Asia/Manila'); 
-    return `${now.year()}`; 
+    const now = moment().tz('Asia/Manila');
+    return `${now.year()}`;
+};
+
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 };
 
 exports.getThisMonthEarnings = async (req, res) => {
     try {
-        const currentMonth = getCurrentMonth(); 
-        
+        const currentMonth = getCurrentMonth();
         const startOfMonth = moment.tz(`${currentMonth}-01`, 'Asia/Manila').startOf('month').toDate();
         const endOfMonth = moment.tz(`${currentMonth}-01`, 'Asia/Manila').endOf('month').toDate();
 
@@ -489,28 +491,24 @@ exports.getThisMonthEarnings = async (req, res) => {
                     $or: [
                         { CheckIn: { $gte: startOfMonth, $lt: endOfMonth } },
                         { CheckOut: { $gte: startOfMonth, $lt: endOfMonth } }
-                    ]
-                }
-            },
-            {
-                $match: {
-                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  
+                    ],
+                    Status: { $in: ['Successful', 'Fully-Paid', 'Reserved'] }
                 }
             },
             {
                 $group: {
                     _id: null,
-                    totalEarnings: { $sum: '$Total' }  
+                    totalEarnings: { $sum: '$Total' }
                 }
             }
         ]);
 
-        if (earnings.length === 0) {
-            return res.status(404).json({ message: "No earnings found for this month" });
-        }
+        const totalEarnings = earnings.length > 0 ? earnings[0].totalEarnings : 0.00;
+        const formattedEarnings = formatCurrency(totalEarnings);
+
         res.status(200).json({
             message: "Monthly earnings retrieved successfully",
-            earnings: earnings[0].totalEarnings,
+            earnings: formattedEarnings,
             period: "this month"
         });
     } catch (error) {
@@ -521,8 +519,9 @@ exports.getThisMonthEarnings = async (req, res) => {
 
 exports.getThisYearEarnings = async (req, res) => {
     try {
-        const startOfYear = moment.tz('2024-01-01', 'Asia/Manila').startOf('year').toDate();
-        const endOfYear = moment.tz('2024-12-31', 'Asia/Manila').endOf('year').toDate();
+        const currentYear = getCurrentYear();
+        const startOfYear = moment.tz(`${currentYear}-01-01`, 'Asia/Manila').startOf('year').toDate();
+        const endOfYear = moment.tz(`${currentYear}-12-31`, 'Asia/Manila').endOf('year').toDate();
 
         const earnings = await BookingsModel.aggregate([
             {
@@ -530,29 +529,24 @@ exports.getThisYearEarnings = async (req, res) => {
                     $or: [
                         { CheckIn: { $gte: startOfYear, $lte: endOfYear } },
                         { CheckOut: { $gte: startOfYear, $lte: endOfYear } }
-                    ]
-                }
-            },
-            {
-                $match: {
-                    'Status': { $in: ['Successful', 'Fully-Paid', 'Reserved'] }  
+                    ],
+                    Status: { $in: ['Successful', 'Fully-Paid', 'Reserved'] }
                 }
             },
             {
                 $group: {
                     _id: null,
-                    totalEarnings: { $sum: '$Total' }  
+                    totalEarnings: { $sum: '$Total' }
                 }
             }
         ]);
 
-        if (earnings.length === 0) {
-            return res.status(404).json({ message: "No earnings found for this year" });
-        }
+        const totalEarnings = earnings.length > 0 ? earnings[0].totalEarnings : 0.00;
+        const formattedEarnings = formatCurrency(totalEarnings);
 
         res.status(200).json({
             message: "Yearly earnings retrieved successfully",
-            earnings: earnings[0].totalEarnings,
+            earnings: formattedEarnings,
             period: "this year"
         });
     } catch (error) {
@@ -560,3 +554,4 @@ exports.getThisYearEarnings = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving yearly earnings', error });
     }
 };
+
