@@ -492,7 +492,7 @@ exports.getThisMonthEarnings = async (req, res) => {
                         { CheckIn: { $gte: startOfMonth, $lt: endOfMonth } },
                         { CheckOut: { $gte: startOfMonth, $lt: endOfMonth } }
                     ],
-                    Status: { $in: ['Successful', 'Fully-Paid', 'Reserved'] }
+                    Status: { $in: ['Successful', 'Fully-Paid', 'Reserved', 'Arrived', 'Pending', ''] }
                 }
             },
             {
