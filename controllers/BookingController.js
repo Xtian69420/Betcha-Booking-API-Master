@@ -161,7 +161,7 @@ exports.EditStatus = async (req, res) => {
 
         booking.Status = Status;
 
-        if (["Cancelled", "Did not arrived", "Unpaid"].includes(Status)) {
+        if (["Cancelled", "Did not arrive", "Unpaid"].includes(Status)) {
             booking.BookDates = [];
         }
         await booking.save();
@@ -304,7 +304,7 @@ exports.getAllDatesBookByUnit = async (req, res) => {
 
 exports.getAllNotSuccessful = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrived'] } }).populate('PaymentId').populate('UnitId').populate('UserId');
+        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrive'] } }).populate('PaymentId').populate('UnitId').populate('UserId');
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with a status other than 'Successful' found" });
@@ -334,7 +334,7 @@ exports.getAllSuccessful = async (req, res) => {
 
 exports.getAllSuccessfulAndCancelled = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: { $in: ['Successful', 'Cancelled', 'Did not arrived', 'Unpaid'] } })
+        const bookings = await BookingsModel.find({ Status: { $in: ['Successful', 'Cancelled', 'Did not arrive', 'Unpaid'] } })
             .populate('PaymentId')
             .populate('UnitId')
             .populate('UserId');
@@ -492,7 +492,7 @@ exports.getThisMonthEarnings = async (req, res) => {
                         { CheckIn: { $gte: startOfMonth, $lt: endOfMonth } },
                         { CheckOut: { $gte: startOfMonth, $lt: endOfMonth } }
                     ],
-                    Status: { $in: ['Successful', 'Fully-Paid', 'Reserved', 'Arrived', 'Pending', ''] }
+                    Status: { $in: ['Successful', 'Fully-Paid', 'Reserved', 'Arrived', 'Pending'] }
                 }
             },
             {
