@@ -132,6 +132,7 @@ exports.loginUser = async (req, res) => {
           userId: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
+          isVerified: user.isVerified,
           role: user.role
       }); // Ends the request by sending a response with the token
   } catch (error) {
