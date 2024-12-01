@@ -8,8 +8,9 @@ const calculateUnitStats = async (filter = {}) => {
     const unitStats = {};
 
     bookings.forEach((booking) => {
-        const { UnitId, BookDates, Total, status } = booking;
-        if (["Cancelled", "Did not arrived", "Unpaid"].includes(status)) {
+        const { UnitId, BookDates, Total, Status } = booking;
+
+        if (["Cancelled", "Did not arrive", "Unpaid"].includes(Status)) {
             return; 
         }
 
@@ -21,6 +22,7 @@ const calculateUnitStats = async (filter = {}) => {
                 top: 0,
                 totalDays: 0,
                 totalEarnings: 0,
+                statuses: []  
             };
         }
 
@@ -28,6 +30,7 @@ const calculateUnitStats = async (filter = {}) => {
 
         unitStats[UnitId._id].totalDays += daysBooked;
         unitStats[UnitId._id].totalEarnings += Total;
+        unitStats[UnitId._id].statuses.push(Status);  
     });
 
     const rankedUnits = Object.values(unitStats).sort((a, b) => b.totalEarnings - a.totalEarnings);
