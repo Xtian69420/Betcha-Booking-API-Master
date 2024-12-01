@@ -3,18 +3,21 @@ const Unit = require('../collection/Unit');
 
 const calculateUnitStats = async (filter = {}) => {
     const bookings = await Booking.find(filter)
-        .populate('UnitId', 'unitName unitPrice description location'); // Include location here
+        .populate('UnitId', 'unitName unitPrice description location'); 
 
     const unitStats = {};
 
     bookings.forEach((booking) => {
-        const { UnitId, BookDates, Total } = booking;
+        const { UnitId, BookDates, Total, status } = booking;
+        if (["Cancelled", "Did not arrive", "Unpaid"].includes(status)) {
+            return; 
+        }
 
         if (!unitStats[UnitId._id]) {
             unitStats[UnitId._id] = {
                 unitId: UnitId._id,
-                unitName: UnitId.unitName, // unitName
-                location: UnitId.location, // location now included
+                unitName: UnitId.unitName, 
+                location: UnitId.location, 
                 top: 0,
                 totalDays: 0,
                 totalEarnings: 0,
@@ -35,8 +38,6 @@ const calculateUnitStats = async (filter = {}) => {
 
     return rankedUnits;
 };
-
-
 
 exports.getMonth = async (req, res) => {
     try {
