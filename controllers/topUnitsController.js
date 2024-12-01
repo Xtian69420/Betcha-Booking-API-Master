@@ -6,6 +6,7 @@ const calculateUnitStats = async (filter = {}) => {
         .populate('UnitId', 'unitName unitPrice description location'); 
 
     const unitStats = {};
+    let totalEarningsAllUnits = 0; // Initialize total earnings for all units
 
     bookings.forEach((booking) => {
         const { UnitId, BookDates, Total, Status } = booking;
@@ -22,7 +23,7 @@ const calculateUnitStats = async (filter = {}) => {
                 top: 0,
                 totalDays: 0,
                 totalEarnings: 0,
-                statuses: []  
+                statuses: []
             };
         }
 
@@ -30,7 +31,9 @@ const calculateUnitStats = async (filter = {}) => {
 
         unitStats[UnitId._id].totalDays += daysBooked;
         unitStats[UnitId._id].totalEarnings += Total;
-        unitStats[UnitId._id].statuses.push(Status);  
+        unitStats[UnitId._id].statuses.push(Status);
+
+        totalEarningsAllUnits += Total; // Increment the global total
     });
 
     const rankedUnits = Object.values(unitStats).sort((a, b) => b.totalEarnings - a.totalEarnings);
@@ -39,8 +42,9 @@ const calculateUnitStats = async (filter = {}) => {
         unit.top = index + 1;
     });
 
-    return rankedUnits;
+    return { rankedUnits, totalEarningsAllUnits };
 };
+
 
 exports.getMonth = async (req, res) => {
     try {
@@ -58,11 +62,11 @@ exports.getMonth = async (req, res) => {
         const startOfMonth = new Date(year, month - 1, 1);  
         const endOfMonth = new Date(year, month, 0);  
 
-        const stats = await calculateUnitStats({
+        const { rankedUnits, totalEarningsAllUnits } = await calculateUnitStats({
             CheckIn: { $gte: startOfMonth.toISOString(), $lte: endOfMonth.toISOString() },
         });
 
-        res.json(stats);
+        res.json({ rankedUnits, totalEarningsAllUnits });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -80,15 +84,16 @@ exports.getAnnual = async (req, res) => {
         const startOfYear = new Date(year, 0, 1);  
         const endOfYear = new Date(year, 11, 31);  
 
-        const stats = await calculateUnitStats({
+        const { rankedUnits, totalEarningsAllUnits } = await calculateUnitStats({
             CheckIn: { $gte: startOfYear.toISOString(), $lte: endOfYear.toISOString() },
         });
 
-        res.json(stats);
+        res.json({ rankedUnits, totalEarningsAllUnits });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };
+
 
 exports.getAllDates = async (req, res) => {
     try {
