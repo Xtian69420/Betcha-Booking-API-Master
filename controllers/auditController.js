@@ -3,18 +3,18 @@ const Audit = require('../collection/Audit');
 exports.createAudit = async (req, res) => {
     try {
         const currentDate = new Date().toISOString();  
-        const lastAudit = await Audit.findOne().sort({ Reference: - 1 });
-        
-        const newReference = lastAudit ? (parseInt(lastAudit.Reference, 10) + 1) : 1;
+        const lastAudit = await Audit.findOne()
+            .sort({ Reference: -1 })
+            .collation({ locale: "en", numericOrdering: true });
 
-
+        const newReference = lastAudit ? lastAudit.Reference + 1 : 1;
 
         console.log(newReference);
 
         const { UserId, Activity, Role } = req.body;
 
         const newAudit = new Audit({
-            Reference: newReference.toString(),  
+            Reference: newReference,  // Store as a number
             Date: currentDate,
             UserId,
             Activity,
@@ -25,15 +25,6 @@ exports.createAudit = async (req, res) => {
         res.status(201).json({ message: 'Audit created successfully', data: newAudit });
     } catch (error) {
         res.status(500).json({ message: 'Failed to create audit', error: error.message });
-    }
-};
-
-exports.getAuditAllUsers = async (req, res) => {
-    try {
-        const audits = await Audit.find();
-        res.status(200).json({ message: 'Audits retrieved successfully', data: audits });
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to retrieve audits', error: error.message });
     }
 };
 
