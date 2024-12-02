@@ -28,6 +28,8 @@ exports.createAudit = async (req, res) => {
     }
 };
 
+const mongoose = require("mongoose");
+
 exports.getAuditAllUsers = async (req, res) => {
     try {
         const audits = await Audit.aggregate([
@@ -38,7 +40,7 @@ exports.getAuditAllUsers = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "admin_tb", // Admin collection
+                    from: "admin_tb", 
                     localField: "userIdAsObjectId",
                     foreignField: "_id",
                     as: "adminDetails",
@@ -46,7 +48,7 @@ exports.getAuditAllUsers = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "super_admin_tb", // SuperAdmin collection
+                    from: "super_admin_tb", 
                     localField: "userIdAsObjectId",
                     foreignField: "_id",
                     as: "superAdminDetails",
@@ -54,7 +56,7 @@ exports.getAuditAllUsers = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "user_tb", // Customer collection
+                    from: "user_tb", 
                     localField: "userIdAsObjectId",
                     foreignField: "_id",
                     as: "userDetails",
@@ -97,6 +99,9 @@ exports.getAuditAllUsers = async (req, res) => {
                     userIdAsObjectId: 0,
                 },
             },
+            {
+                $sort: { Reference: -1 }, 
+            },
         ]);
 
         res.status(200).json({ message: "Audits retrieved successfully", data: audits });
@@ -105,8 +110,6 @@ exports.getAuditAllUsers = async (req, res) => {
     }
 };
 
-
-const mongoose = require("mongoose");
 
 exports.getAuditForAdmin = async (req, res) => {
     try {
@@ -121,7 +124,7 @@ exports.getAuditForAdmin = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "admin_tb", // Admin collection name
+                    from: "admin_tb", 
                     localField: "userIdAsObjectId",
                     foreignField: "_id",
                     as: "adminDetails",
@@ -129,7 +132,7 @@ exports.getAuditForAdmin = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "super_admin_tb", // SuperAdmin collection name
+                    from: "super_admin_tb", 
                     localField: "userIdAsObjectId",
                     foreignField: "_id",
                     as: "superAdminDetails",
