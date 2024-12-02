@@ -40,7 +40,7 @@ exports.getAuditAllUsers = async (req, res) => {
 
 exports.getAuditForAdmin = async (req, res) => {
     try {
-        const audits = await Audit.find({ Role: { $in: ['Admin', 'Super-Admin'] } })
+        const audits = await Audit.find({ Role: { $in: ['Admin', 'SuperAdmin'] } })
         res.status(200).json({ message: 'Admin audits retrieved successfully', data: audits });
     } catch (error) {
         res.status(500).json({ message: 'Failed to retrieve admin audits', error: error.message });
