@@ -3,12 +3,9 @@ const Audit = require('../collection/Audit');
 exports.createAudit = async (req, res) => {
     try {
         const currentDate = new Date().toISOString();  
-        
         const lastAudit = await Audit.findOne().sort({ Reference: - 1 });
-
-        const newLastAudit = parseInt(lastAudit);
         
-        const newReference = newLastAudit +1;
+        const newReference = lastAudit ? parseInt(lastAudit.Reference) + 1 : 1; 
 
 
         console.log(newReference);
