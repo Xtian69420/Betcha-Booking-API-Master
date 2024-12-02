@@ -6,7 +6,8 @@ exports.createAudit = async (req, res) => {
         
         const lastAudit = await Audit.findOne().sort({ Reference: - 1 });
 
-        const newReference = lastAudit ? parseInt(lastAudit.Reference) + 1 : 1; 
+        const newReference = lastAudit && !isNaN(lastAudit.Reference) ? parseInt(lastAudit.Reference, 10) + 1 : 1;
+
 
         console.log(newReference);
 
