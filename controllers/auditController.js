@@ -28,6 +28,15 @@ exports.createAudit = async (req, res) => {
     }
 };
 
+exports.getAuditAllUsers = async (req, res) => {
+    try {
+        const audits = await Audit.find();
+        res.status(200).json({ message: 'Audits retrieved successfully', data: audits });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve audits', error: error.message });
+    }
+};
+
 exports.getAuditForAdmin = async (req, res) => {
     try {
         const audits = await Audit.find({ Role: 'Admin' });
