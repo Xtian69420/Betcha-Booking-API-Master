@@ -8,7 +8,7 @@ exports.createAudit = async (req, res) => {
 
         const newLastAudit = parseInt(lastAudit);
         
-        const newReference = newLastAudit +1 : 1;
+        const newReference = newLastAudit +1;
 
 
         console.log(newReference);
