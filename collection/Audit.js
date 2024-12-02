@@ -4,7 +4,7 @@ const AuditSchema = new mongoose.Schema({
     Reference: { type: Number, required: true },
     Date: { type: String, required: true },
     UserId: { type: String, required: true },
-    Username: { type: String, required: true },
+    Username: { type: String },
     Activity: { type: String, required: true },
     Role: { type: String, required: true }
 }, {
