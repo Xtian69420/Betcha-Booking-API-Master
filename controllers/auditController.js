@@ -2,19 +2,20 @@ const Audit = require('../collection/Audit');
 
 exports.createAudit = async (req, res) => {
     try {
-        const currentDate = new Date().toISOString();  
+        const currentDate = new Date().toISOString();
+        
         const lastAudit = await Audit.findOne()
             .sort({ Reference: -1 })
             .collation({ locale: "en", numericOrdering: true });
 
         const newReference = lastAudit ? lastAudit.Reference + 1 : 1;
 
-        console.log(newReference);
+        console.log('New Reference:', newReference);
 
         const { UserId, Activity, Role } = req.body;
 
         const newAudit = new Audit({
-            Reference: newReference,  // Store as a number
+            Reference: newReference,
             Date: currentDate,
             UserId,
             Activity,
@@ -24,6 +25,7 @@ exports.createAudit = async (req, res) => {
         await newAudit.save();
         res.status(201).json({ message: 'Audit created successfully', data: newAudit });
     } catch (error) {
+        console.error('Error creating audit:', error);
         res.status(500).json({ message: 'Failed to create audit', error: error.message });
     }
 };
