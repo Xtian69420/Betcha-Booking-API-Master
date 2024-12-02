@@ -10,12 +10,13 @@ exports.createAudit = async (req, res) => {
 
         const newReference = lastAudit ? lastAudit.Reference + 1 : 1;
 
-        const { UserId, Activity, Role } = req.body;
+        const { UserId, Username, Activity, Role } = req.body;
 
         const newAudit = new Audit({
             Reference: newReference,
             Date: currentDate,
             UserId,
+            Username,
             Activity,
             Role
         });
