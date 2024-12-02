@@ -4,9 +4,11 @@ exports.createAudit = async (req, res) => {
     try {
         const currentDate = new Date().toISOString();  
         
-        const lastAudit = await Audit.findOne().sort({ Reference -1 });
+        const lastAudit = await Audit.findOne().sort({ Reference });
 
         const newReference = lastAudit ? parseInt(lastAudit.Reference) + 1 : 1; 
+
+        console.log(newReference);
 
         const { UserId, Activity, Role } = req.body;
 
