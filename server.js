@@ -153,6 +153,8 @@ app.put('/updateTopUnits', topUnitController.updateTopForUnits);
 
 // OTP_Routes
 app.post('/otp/create', otpController.createOtp);
+app.post('/otp/forgot', otpController.createOtpForgotPassword);
+app.post('/otp/forgot/verify', otpController.verifyOtpForgotPassword);
 app.post('/otp/verify', otpController.verifyOtp);
 app.post('/otp/delete', otpController.deleteOtp);
 app.post('/otp/resend', otpController.resendOtp);

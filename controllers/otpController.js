@@ -340,3 +340,73 @@ exports.BookingMessage = async (req, res) => {
         res.status(500).send({ error: 'Failed to send booking confirmation email', details: error.message });
     }
 };
+
+exports.createOtpForgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const otp = generateOTP();
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); 
+
+        const newOtp = await OTP.create({ email, otp, expiresAt });
+
+        const msg = {
+            to: email,
+            from: 'betcha.booking.webapp@gmail.com',
+            subject: 'Password Reset OTP',
+            html: `
+                <html>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0;">
+                        <table style="width: 100%; padding: 20px; background-color: #ffffff; border-radius: 8px; max-width: 600px; margin: 30px auto;">
+                            <tr>
+                                <td style="padding: 20px; text-align: center;">
+                                    <h2>Your Password Reset OTP</h2>
+                                    <h3 style="font-size: 28px; color: #4CAF50;">${otp}</h3>
+                                    <p>Please use this OTP to reset your password. It will expire in 5 minutes.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                </html>
+            `,
+        };
+
+        await sgMail.send(msg);
+        res.status(201).send({ message: 'Password reset OTP sent successfully!' });
+        console.log('Password reset OTP sent to:', email);
+    } catch (error) {
+        console.error('Error sending OTP:', error);
+        res.status(500).send({ error: 'Failed to send OTP', details: error.message });
+    }
+};
+
+exports.verifyOtpForgotPassword = async (req, res) => {
+    const { email, otp } = req.body;
+
+    try {
+        const otpRecord = await OTP.findOne({ email });
+
+        if (!otpRecord) {
+            return res.status(404).send({ error: 'OTP not found for this email.' });
+        }
+
+        if (otpRecord.isUsed) {
+            return res.status(400).send({ error: 'OTP already used.' });
+        }
+
+        if (otpRecord.expiresAt < new Date()) {
+            return res.status(400).send({ error: 'OTP has expired.' });
+        }
+
+        if (otpRecord.otp.toString() !== otp.toString()) {
+            return res.status(400).send({ error: 'Invalid OTP.' });
+        }
+        
+        await OTP.deleteMany({ email });
+
+        res.send({ message: 'OTP verified successfully!' });
+    } catch (error) {
+        console.error('Error verifying OTP:', error);
+        res.status(500).send({ error: 'Failed to verify OTP', details: error.message });
+    }
+};
