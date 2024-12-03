@@ -345,6 +345,8 @@ exports.createOtpForgotPassword = async (req, res) => {
     const { email } = req.body;
 
     try {
+        await OTP.deleteMany({ email });
+
         const otp = generateOTP();
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000); 
 
@@ -380,6 +382,7 @@ exports.createOtpForgotPassword = async (req, res) => {
     }
 };
 
+
 exports.verifyOtpForgotPassword = async (req, res) => {
     const { email, otp } = req.body;
 
@@ -401,7 +404,7 @@ exports.verifyOtpForgotPassword = async (req, res) => {
         if (otpRecord.otp.toString() !== otp.toString()) {
             return res.status(400).send({ error: 'Invalid OTP.' });
         }
-        
+
         await OTP.deleteMany({ email });
 
         res.send({ message: 'OTP verified successfully!' });
