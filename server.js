@@ -58,6 +58,7 @@ app.post('/Login', userController.loginUser);
 app.get('/getUserIdImage/:userId', userController.getUserIdImage);
 app.get('/user/:userId', userController.getUserById);
 app.put('/updateUser/:userId', userController.updateUser);
+app.put('/user/updateEmail', userController.updateUserByEmail);
 app.delete('/deleteUser/:userId', userController.deleteUser);
 
 // ID_Confirmation_Routes

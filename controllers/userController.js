@@ -240,6 +240,45 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+exports.updateUserByEmail = async (req, res) => {
+  const { email } = req.body || req.query; 
+  const { password, phoneNumber, firstName, middleInitial, lastName, bday, isVerified } = req.body || req.query;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required to find the user' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updatedData = {};
+
+    if (password) updatedData.password = await bcrypt.hash(password, 10); 
+    if (phoneNumber) updatedData.phoneNumber = phoneNumber;
+    if (firstName) updatedData.firstName = firstName;
+    if (middleInitial) updatedData.middleInitial = middleInitial;
+    if (lastName) updatedData.lastName = lastName;
+    if (bday) updatedData.bday = bday;
+    if (isVerified !== undefined && isVerified !== null) {
+      updatedData.isVerified = isVerified;
+    }
+
+    const updatedUser = await User.findOneAndUpdate({ email }, updatedData, { new: true });
+
+    res.status(200).json({
+      message: 'User updated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update user', details: error.message });
+  }
+};
+
+
 exports.deleteUser = async (req, res) => {
   const userId = req.params.userId; 
 
