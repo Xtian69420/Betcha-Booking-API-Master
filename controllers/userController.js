@@ -357,13 +357,12 @@ exports.getProfileImage = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    let fileId = user.profileImage?.fileId;
-
     const defaultFileId = '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
+    const fileId = user.profileImage?.fileId || defaultFileId;
 
     try {
       const file = await drive.files.get({
-        fileId: fileId || defaultFileId,
+        fileId: fileId,
         fields: 'webContentLink',
       });
 
@@ -371,22 +370,19 @@ exports.getProfileImage = async (req, res) => {
         message: 'Profile image fetched successfully',
         imageUrl: file.data.webContentLink,
       });
-    } catch (fetchError) {
-      if (fetchError.response?.status === 404) {
-        console.warn(`File not found: ${fileId}, falling back to default.`);
+    } catch (error) {
+      console.warn(`Error fetching user image with fileId ${fileId}:`, error.message);
+      console.warn('Falling back to default profile image.');
 
-        const defaultFile = await drive.files.get({
-          fileId: defaultFileId,
-          fields: 'webContentLink',
-        });
+      const defaultFile = await drive.files.get({
+        fileId: defaultFileId,
+        fields: 'webContentLink',
+      });
 
-        res.status(200).json({
-          message: 'Default profile image fetched successfully',
-          imageUrl: defaultFile.data.webContentLink,
-        });
-      } else {
-        throw fetchError; 
-      }
+      res.status(200).json({
+        message: 'Default profile image used',
+        imageUrl: defaultFile.data.webContentLink,
+      });
     }
   } catch (error) {
     console.error('Error fetching profile image:', error.message);
