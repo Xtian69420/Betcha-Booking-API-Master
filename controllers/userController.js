@@ -357,17 +357,37 @@ exports.getProfileImage = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const fileId = user.profileImage?.fileId || '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
+    let fileId = user.profileImage?.fileId;
 
-    const file = await drive.files.get({
-      fileId: fileId,
-      fields: 'webContentLink',
-    });
+    const defaultFileId = '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
 
-    res.status(200).json({
-      message: 'Profile image fetched successfully',
-      imageUrl: file.data.webContentLink,
-    });
+    try {
+      const file = await drive.files.get({
+        fileId: fileId || defaultFileId,
+        fields: 'webContentLink',
+      });
+
+      res.status(200).json({
+        message: 'Profile image fetched successfully',
+        imageUrl: file.data.webContentLink,
+      });
+    } catch (fetchError) {
+      if (fetchError.response?.status === 404) {
+        console.warn(`File not found: ${fileId}, falling back to default.`);
+
+        const defaultFile = await drive.files.get({
+          fileId: defaultFileId,
+          fields: 'webContentLink',
+        });
+
+        res.status(200).json({
+          message: 'Default profile image fetched successfully',
+          imageUrl: defaultFile.data.webContentLink,
+        });
+      } else {
+        throw fetchError; 
+      }
+    }
   } catch (error) {
     console.error('Error fetching profile image:', error.message);
     res.status(500).json({
