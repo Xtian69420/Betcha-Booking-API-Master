@@ -348,7 +348,7 @@ exports.uploadProfileImage = async (req, res) => {
   });
 };
 
-exports.getProfileImageFileId = async (req, res) => {
+exports.getProfileImage = async (req, res) => {
   try {
     const userId = req.params.userId;
     const user = await User.findById(userId);
