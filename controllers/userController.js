@@ -348,7 +348,7 @@ exports.uploadProfileImage = async (req, res) => {
   });
 };
 
-exports.getProfileImage = async (req, res) => {
+exports.getProfileImageFileId = async (req, res) => {
   try {
     const userId = req.params.userId;
     const user = await User.findById(userId);
@@ -357,45 +357,19 @@ exports.getProfileImage = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const defaultFileId = '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
-    const fileId = user.profileImage?.fileId || defaultFileId;
+    // Retrieve the fileId or use the default if it doesn't exist
+    const fileId = user.profileImage?.fileId || '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
 
-    try {
-      // Attempt to fetch the user's profile image fileId
-      await drive.files.get({ fileId: fileId, fields: 'id' });
-
-      // Return the fileId
-      return res.status(200).json({
-        message: 'Profile image fileId fetched successfully',
-        fileId: fileId,
-      });
-    } catch (error) {
-      console.warn(`Error fetching user image with fileId ${fileId}:`, error.message);
-      
-      // Fallback to default if user's fileId fetch fails
-      if (fileId !== defaultFileId) {
-        console.warn('Falling back to default profile image.');
-        return res.status(200).json({
-          message: 'Default profile image fileId used',
-          fileId: defaultFileId,
-        });
-      }
-
-      // If both user and default images fail
-      return res.status(404).json({
-        error: 'Profile image not available',
-      });
-    }
+    // Return the fileId directly
+    res.status(200).json({ fileId });
   } catch (error) {
-    console.error('Unexpected error fetching profile image:', error.message);
+    console.error('Error retrieving profile image fileId:', error.message);
     res.status(500).json({
-      error: 'Failed to fetch profile image',
+      error: 'Failed to retrieve profile image fileId',
       details: error.message,
     });
   }
 };
-
-
 
 exports.updateProfileImage = async (req, res) => {
   try {
