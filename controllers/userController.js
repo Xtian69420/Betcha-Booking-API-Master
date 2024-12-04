@@ -59,7 +59,7 @@ exports.registerUser = (req, res) => {
     console.log('Uploaded file:', req.file);
 
     const { email, password, phoneNumber, firstName, middleInitial, lastName, sex, bday, isVerified } = req.body;
-    if (!email || !password || !firstName || !lastName || !bday || !sex) {
+    if (!email || !password || !firstName || !lastName || !sex) {
       return res.status(400).json({ error: 'Required fields: email, password, firstName, lastName!' });
     }
 
