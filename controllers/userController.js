@@ -58,8 +58,8 @@ exports.registerUser = (req, res) => {
 
     console.log('Uploaded file:', req.file);
 
-    const { email, password, phoneNumber, firstName, middleInitial, lastName, bday, isVerified } = req.body;
-    if (!email || !password || !firstName || !lastName || !bday) {
+    const { email, password, phoneNumber, firstName, middleInitial, lastName, sex, bday, isVerified } = req.body;
+    if (!email || !password || !firstName || !lastName || !bday || !sex) {
       return res.status(400).json({ error: 'Required fields: email, password, firstName, lastName!' });
     }
 
@@ -82,6 +82,7 @@ exports.registerUser = (req, res) => {
         middleInitial,
         lastName,
         bday,
+        sex,
         isVerified,
         IdImage: uploadedFile
           ? {
@@ -207,7 +208,7 @@ exports.getUserIdImage = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.userId; 
-  const { email, password, phoneNumber, firstName, middleInitial, lastName, bday, isVerified } = req.body || req.query;
+  const { email, password, phoneNumber, firstName, middleInitial, lastName, bday, sex, isVerified } = req.body || req.query;
 
   try {
     const user = await User.findById(userId);
@@ -225,6 +226,7 @@ exports.updateUser = async (req, res) => {
     if (middleInitial) updatedData.middleInitial = middleInitial;
     if (lastName) updatedData.lastName = lastName;
     if (bday) updatedData.bday = bday;
+    if (sex) updatedData.sex = sex;
     if (isVerified !== undefined && isVerified !== null) {
       updatedData.isVerified = isVerified;
     }
@@ -242,7 +244,7 @@ exports.updateUser = async (req, res) => {
 
 exports.updateUserByEmail = async (req, res) => {
   const { email } = req.body || req.query; 
-  const { password, phoneNumber, firstName, middleInitial, lastName, bday, isVerified } = req.body || req.query;
+  const { password, phoneNumber, firstName, middleInitial, lastName, bday, sex, isVerified } = req.body || req.query;
 
   if (!email) {
     return res.status(400).json({ error: 'Email is required to find the user' });
@@ -263,6 +265,7 @@ exports.updateUserByEmail = async (req, res) => {
     if (middleInitial) updatedData.middleInitial = middleInitial;
     if (lastName) updatedData.lastName = lastName;
     if (bday) updatedData.bday = bday;
+    if (sex) updatedData.sex = sex;
     if (isVerified !== undefined && isVerified !== null) {
       updatedData.isVerified = isVerified;
     }
