@@ -13,9 +13,9 @@ const UserSchema = new mongoose.Schema({
     role: { type: String, default: "Customer" },
     bday: { type: String, default: "N/A"},
     profileImage: {
-        filename: { type: String, default: '672fa43f474960c8a5765da8'}, 
+        filename: { type: String, default: '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS'}, 
         name: {type: String, default: 'Default Profile'},
-        fileId: { type: String, default: '672fa43f474960c8a5765da8'},
+        fileId: { type: String, default: '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS'},
         image: {
             data: { type: Buffer },
             contentType: { type: String }
