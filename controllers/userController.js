@@ -358,40 +358,56 @@ exports.getProfileImage = async (req, res) => {
     }
 
     const defaultFileId = '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
-    const fileId = user.profileImage?.fileId || defaultFileId;
+    let fileId = user.profileImage?.fileId || defaultFileId;
 
     try {
+      // Attempt to fetch the user's profile image
       const file = await drive.files.get({
         fileId: fileId,
         fields: 'webContentLink',
       });
 
-      res.status(200).json({
+      return res.status(200).json({
         message: 'Profile image fetched successfully',
         imageUrl: file.data.webContentLink,
       });
-    } catch (error) {
-      console.warn(`Error fetching user image with fileId ${fileId}:`, error.message);
-      console.warn('Falling back to default profile image.');
+    } catch (fetchError) {
+      console.warn(`Error fetching user image with fileId ${fileId}:`, fetchError.message);
+      
+      // Fallback to default profile image
+      if (fileId !== defaultFileId) {
+        console.warn('Falling back to default profile image.');
+        fileId = defaultFileId;
 
-      const defaultFile = await drive.files.get({
-        fileId: defaultFileId,
-        fields: 'webContentLink',
-      });
+        try {
+          const defaultFile = await drive.files.get({
+            fileId: defaultFileId,
+            fields: 'webContentLink',
+          });
 
-      res.status(200).json({
-        message: 'Default profile image used',
-        imageUrl: defaultFile.data.webContentLink,
-      });
+          return res.status(200).json({
+            message: 'Default profile image used',
+            imageUrl: defaultFile.data.webContentLink,
+          });
+        } catch (defaultError) {
+          console.error('Error fetching default profile image:', defaultError.message);
+        }
+      }
     }
+
+    // If both user image and default image fail
+    return res.status(404).json({
+      error: 'Profile image not available',
+    });
   } catch (error) {
-    console.error('Error fetching profile image:', error.message);
+    console.error('Unexpected error fetching profile image:', error.message);
     res.status(500).json({
       error: 'Failed to fetch profile image',
       details: error.message,
     });
   }
 };
+
 
 exports.updateProfileImage = async (req, res) => {
   try {
