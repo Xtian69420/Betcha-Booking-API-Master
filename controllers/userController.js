@@ -351,28 +351,29 @@ exports.uploadProfileImage = async (req, res) => {
 exports.getProfileImage = async (req, res) => {
   try {
     const userId = req.params.userId;
-
     const user = await User.findById(userId);
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (user.profileImage && user.profileImage.fileId) {
-      const file = await drive.files.get({
-        fileId: user.profileImage.fileId,
-        fields: 'webContentLink',
-      });
+    const fileId = user.profileImage?.fileId || '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
 
-      res.status(200).json({
-        message: 'Profile image fetched successfully',
-        imageUrl: file.data.webContentLink,
-      });
-    } else {
-      res.status(404).json({ error: 'Profile image not found' });
-    }
+    const file = await drive.files.get({
+      fileId: fileId,
+      fields: 'webContentLink',
+    });
+
+    res.status(200).json({
+      message: 'Profile image fetched successfully',
+      imageUrl: file.data.webContentLink,
+    });
   } catch (error) {
-    console.error('Error fetching profile image:', error);
-    res.status(500).json({ error: 'Failed to fetch profile image', details: error.message });
+    console.error('Error fetching profile image:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch profile image',
+      details: error.message,
+    });
   }
 };
 
