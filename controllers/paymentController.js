@@ -71,6 +71,7 @@ exports.PaymentReservation = async (req, res) => {
     }
 };
 
+
 exports.FullPayment = async (req, res) => {
     const { ref, amount, userId, unitId } = req.body;
 
@@ -113,7 +114,9 @@ exports.FullPayment = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
+exports.refundPayment = async (req, res) =>{
+    // create here the refund: {payment_id, reason}
+}
 
 const fetchPaymentDetails = async (paymentId) => {
     const response = await fetch(`https://api.paymongo.com/v1/payments/${paymentId}`, {

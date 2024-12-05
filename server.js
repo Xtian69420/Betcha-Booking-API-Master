@@ -112,7 +112,7 @@ app.get('/bookings/unit/:unitId', bookingController.getBookingUnit);
 app.get('/booking/:reference', bookingController.getOneBooking);
 app.get('/bookings', bookingController.getAllBooking);
 app.get('/bookings/unit/:unitId/dates', bookingController.getAllDatesBookByUnit);
-app.get('/booking/user/:userID', bookingController.getBookingUser);
+app.get('/booking/user/:userId', bookingController.getBookingUser);
 app.get('/bookings/pending', bookingController.getAllNotSuccessful);
 app.get('/bookings/successful', bookingController.getAllSuccessful);
 app.get('/getBookingByDate/:date', bookingController.getBookingByDate);

@@ -357,10 +357,8 @@ exports.getProfileImage = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Retrieve the fileId or use the default if it doesn't exist
     const fileId = user.profileImage?.fileId || '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
 
-    // Return the fileId directly
     res.status(200).json({ fileId });
   } catch (error) {
     console.error('Error retrieving profile image fileId:', error.message);
