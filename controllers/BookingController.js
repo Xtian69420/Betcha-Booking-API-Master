@@ -83,7 +83,7 @@ exports.Book = async (req, res) => {
             AdditionalPax,
             Total: totalAmount,
             isSuccess: true,
-            Status: 'Pending Payment'
+            Status: 'Cancelled'
         });
 
         await newBooking.save();
