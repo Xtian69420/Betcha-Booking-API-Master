@@ -211,6 +211,22 @@ exports.getBookingUnit = async (req, res) => {
     }
 };
 
+exports.getBookingUnitDates = async (req, res) => {
+    try {
+        const { unitId } = req.params;
+
+        const bookings = await BookingsModel.find({ UnitId: unitId }, { BookDates: 1, _id: 0 });
+
+        const dates = bookings.flatMap(booking => booking.BookDates.map(dateObj => dateObj.Date));
+
+        res.status(200).json({ message: "", dates });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving booking dates', error });
+    }
+};
+
+
 exports.getOneBooking = async (req, res) => {
     try {
         const { reference } = req.params;
@@ -242,7 +258,7 @@ exports.getBookingUser = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        const bookings = await BookingsModel.find({ userId: userId }).populate('PaymentId').populate('UnitId').populate('UserId');
+        const bookings = await BookingsModel.find({ UserId: userId }).populate('PaymentId').populate('UnitId').populate('UserId');
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings found for this user" });
