@@ -3,10 +3,10 @@ const Unit = require('../collection/Unit');
 
 const calculateUnitStats = async (filter = {}) => {
     const bookings = await Booking.find(filter)
-        .populate('UnitId', 'unitName unitPrice description location'); 
+        .populate('UnitId', 'unitName unitPrice description location UnitImages');  // Include UnitImages in the populate
 
     const unitStats = {};
-    let totalEarningsAllUnits = 0; // Initialize total earnings for all units
+    let totalEarningsAllUnits = 0;
 
     bookings.forEach((booking) => {
         const { UnitId, BookDates, Total, Status } = booking;
@@ -23,7 +23,8 @@ const calculateUnitStats = async (filter = {}) => {
                 top: 0,
                 totalDays: 0,
                 totalEarnings: 0,
-                statuses: []
+                statuses: [],
+                unitImages: UnitId.UnitImages || []  // Add UnitImages to the unitStats object
             };
         }
 
@@ -33,7 +34,7 @@ const calculateUnitStats = async (filter = {}) => {
         unitStats[UnitId._id].totalEarnings += Total;
         unitStats[UnitId._id].statuses.push(Status);
 
-        totalEarningsAllUnits += Total; // Increment the global total
+        totalEarningsAllUnits += Total;
     });
 
     const rankedUnits = Object.values(unitStats).sort((a, b) => b.totalEarnings - a.totalEarnings);
@@ -127,5 +128,48 @@ exports.updateTopForUnits = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: "Failed to update Top rankings for units", error: error.message });
+    }
+};
+
+exports.topUnits = async (req, res) => {
+    try {
+        const { rankedUnits } = await calculateUnitStats();  
+
+        const topUnits = rankedUnits.slice(0, 5);  // Adjust the slicing logic as needed for your metric (e.g., based on 'top' or earnings)
+
+        res.status(200).json({
+            message: "Top 5 units retrieved successfully",
+            data: topUnits.map(unit => ({
+                unitId: unit.unitId,
+                unitName: unit.unitName,
+                location: unit.location,
+                top: unit.top,
+                unitImages: unit.unitImages  // Include the UnitImages field
+            })),
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to retrieve top units", error: error.message });
+    }
+};
+
+
+exports.bottomUnits = async (req, res) => {
+    try {
+        const { rankedUnits } = await calculateUnitStats();  
+
+        const bottomUnits = rankedUnits.slice(-5); 
+
+        res.status(200).json({
+            message: "Bottom 5 units retrieved successfully",
+            data: bottomUnits.map(unit => ({
+                unitId: unit.unitId,
+                unitName: unit.unitName,
+                location: unit.location,
+                top: unit.top,
+                unitImages: unit.unitImages  // Include the UnitImages field
+            })),
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to retrieve bottom units", error: error.message });
     }
 };

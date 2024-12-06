@@ -153,6 +153,8 @@ app.get('/getMonth/:month/:year', topUnitController.getMonth);
 app.get('/getAnnual/:year', topUnitController.getAnnual);
 app.get('/getAllDates', topUnitController.getAllDates);
 app.put('/updateTopUnits', topUnitController.updateTopForUnits);
+app.get('/get/top', topUnitController.topUnits);
+app.get('/get/bottom', topUnitController.bottomUnits);
 
 // OTP_Routes
 app.post('/otp/create', otpController.createOtp);
