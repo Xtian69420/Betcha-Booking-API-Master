@@ -157,7 +157,9 @@ exports.bottomUnits = async (req, res) => {
     try {
         const { rankedUnits } = await calculateUnitStats();  
 
-        const bottomUnits = rankedUnits.slice(-5); 
+        const sortedUnits = rankedUnits.sort((a, b) => b.top - a.top);
+
+        const bottomUnits = sortedUnits.slice(-5);
 
         res.status(200).json({
             message: "Bottom 5 units retrieved successfully",
