@@ -114,9 +114,6 @@ exports.FullPayment = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-exports.refundPayment = async (req, res) =>{
-    // create here the refund: {payment_id, reason}
-}
 
 const fetchPaymentDetails = async (paymentId) => {
     const response = await fetch(`https://api.paymongo.com/v1/payments/${paymentId}`, {
@@ -267,5 +264,16 @@ exports.getAllPaymentsByUnit = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch unit payments' });
+    }
+};
+
+exports.getPaymentLink = async (req, res) => {
+    const { reference } = req.params;
+    try {
+        const payments = await PaymentModel.find({ Reference: reference });
+        res.status(200).json( payments );
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch PaymentLink' });
     }
 };

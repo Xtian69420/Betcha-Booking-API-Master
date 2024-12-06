@@ -141,6 +141,7 @@ app.get('/payments', paymentController.getAllPayments);
 app.get('/getPaymentDetails/:linkId', paymentController.getPaymentDetails);
 app.get('/payments/user/:userId', paymentController.getAllPaymentsByUser);
 app.get('/payments/unit/:unitId', paymentController.getAllPaymentsByUnit);
+app.get('/get/paymentlink/:reference', paymentController.getPaymentLink);
 
 // Audit_Routes
 app.post('/audit/create', auditController.createAudit);
