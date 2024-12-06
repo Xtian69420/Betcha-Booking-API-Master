@@ -358,8 +358,9 @@ exports.getProfileImage = async (req, res) => {
     }
 
     const fileId = user.profileImage?.fileId || '1z1GP6qBTsl8uLLEqAjexZwTa1KPSEnRS';
+    const email = user.email; 
 
-    res.status(200).json({ fileId });
+    res.status(200).json({ fileId, email });
   } catch (error) {
     console.error('Error retrieving profile image fileId:', error.message);
     res.status(500).json({
