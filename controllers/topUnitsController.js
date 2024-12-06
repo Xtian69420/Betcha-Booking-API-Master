@@ -157,11 +157,7 @@ exports.bottomUnits = async (req, res) => {
     try {
         const { rankedUnits } = await calculateUnitStats();  
 
-        // Sort the units in descending order based on a field (e.g., 'top')
-        const sortedUnits = rankedUnits.sort((a, b) => b.top - a.top);
-
-        // Take the last 5 units (these are the bottom units)
-        const bottomUnits = sortedUnits.slice(-5);
+        const bottomUnits = rankedUnits.slice(-5); 
 
         res.status(200).json({
             message: "Bottom 5 units retrieved successfully",
@@ -170,7 +166,7 @@ exports.bottomUnits = async (req, res) => {
                 unitName: unit.unitName,
                 location: unit.location,
                 top: unit.top,
-                unitImages: unit.unitImages  
+                unitImages: unit.unitImages  // Include the UnitImages field
             })),
         });
     } catch (error) {
