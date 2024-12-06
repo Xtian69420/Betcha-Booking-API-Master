@@ -155,7 +155,6 @@ exports.getUnitById = async (req, res) => {
   }
 };
 
-// highest Rank
 exports.getTopUnits = async (req, res) => {
   try {
     const topUnits = await Unit.find()
@@ -175,7 +174,6 @@ exports.getTopUnits = async (req, res) => {
   }
 };
 
-// lowest rank
 exports.getBottomUnits = async (req, res) => {
   try {
     const bottomUnits = await Unit.find()

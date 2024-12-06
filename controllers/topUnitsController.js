@@ -107,7 +107,7 @@ exports.getAllDates = async (req, res) => {
 
 exports.updateTopForUnits = async (req, res) => {
     try {
-        const rankedUnits = await calculateUnitStats();
+        const { rankedUnits } = await calculateUnitStats();
 
         const updatePromises = rankedUnits.map(async (unit, index) => {
             const updatedUnit = await Unit.findByIdAndUpdate(
