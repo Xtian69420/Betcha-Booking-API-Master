@@ -320,7 +320,7 @@ exports.getAllDatesBookByUnit = async (req, res) => {
 
 exports.getAllNotSuccessful = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrive', 'Did not pay'] } }).populate('PaymentId').populate('UnitId').populate('UserId');
+        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrive'] } }).populate('PaymentId').populate('UnitId').populate('UserId');
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with a status other than 'Successful' found" });
@@ -456,7 +456,7 @@ exports.editSuccess = async (req, res) => {
 exports.getAllDatesForAllUnits = async (req, res) => {
     try {
         const bookings = await BookingsModel.find({
-            Status: { $ne: ['Cancelled', 'Unpaid', 'Did not arrive' ]}
+            Status: { $ne: 'Cancelled'}
         }).populate('PaymentId').populate('UnitId').populate('UserId');
 
         if (!bookings || bookings.length === 0) {
