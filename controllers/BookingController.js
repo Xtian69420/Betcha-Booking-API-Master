@@ -213,7 +213,11 @@ exports.getBookingUnit = async (req, res) => {
 
 exports.getBookingUnitDates = async (req, res) => {
     try {
-        const { unitId } = req.params;
+        let { unitId } = req.params;
+
+        if (unitId === 'null' || !mongoose.Types.ObjectId.isValid(unitId)) {
+            return res.status(400).json({ message: 'Invalid unitId' });
+        }
 
         const bookings = await BookingsModel.find({ UnitId: unitId }, { BookDates: 1, _id: 0 });
 
