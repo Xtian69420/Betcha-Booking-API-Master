@@ -219,7 +219,13 @@ exports.getBookingUnitDates = async (req, res) => {
             return res.status(400).json({ message: 'Invalid unitId' });
         }
 
-        const bookings = await BookingsModel.find({ UnitId: unitId }, { BookDates: 1, _id: 0 });
+        const bookings = await BookingsModel.find(
+            { 
+                UnitId: unitId,
+                Status: { $nin: ['Cancelled', 'Unpaid', 'Did not arrive'] } 
+            },
+            { BookDates: 1, _id: 0 }
+        );
 
         const dates = bookings.flatMap(booking => booking.BookDates.map(dateObj => dateObj.Date));
 
@@ -229,6 +235,7 @@ exports.getBookingUnitDates = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving booking dates', error });
     }
 };
+
 
 
 exports.getOneBooking = async (req, res) => {
