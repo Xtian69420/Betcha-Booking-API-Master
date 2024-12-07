@@ -135,7 +135,7 @@ exports.topUnits = async (req, res) => {
     try {
         const { rankedUnits } = await calculateUnitStats();  
 
-        const topUnits = rankedUnits.slice(0, 5);  // Adjust the slicing logic as needed for your metric (e.g., based on 'top' or earnings)
+        const topUnits = rankedUnits.slice(0, 5);  
 
         res.status(200).json({
             message: "Top 5 units retrieved successfully",
@@ -144,7 +144,7 @@ exports.topUnits = async (req, res) => {
                 unitName: unit.unitName,
                 location: unit.location,
                 top: unit.top,
-                unitImages: unit.unitImages  // Include the UnitImages field
+                unitImages: unit.unitImages  
             })),
         });
     } catch (error) {
@@ -157,9 +157,7 @@ exports.bottomUnits = async (req, res) => {
     try {
         const { rankedUnits } = await calculateUnitStats();  
 
-        const sortedUnits = rankedUnits.sort((a, b) => b.top - a.top);
-
-        const bottomUnits = sortedUnits.slice(-5);
+        const bottomUnits = rankedUnits.slice(-5);
 
         res.status(200).json({
             message: "Bottom 5 units retrieved successfully",
@@ -168,7 +166,7 @@ exports.bottomUnits = async (req, res) => {
                 unitName: unit.unitName,
                 location: unit.location,
                 top: unit.top,
-                unitImages: unit.unitImages  // Include the UnitImages field
+                unitImages: unit.unitImages 
             })),
         });
     } catch (error) {
