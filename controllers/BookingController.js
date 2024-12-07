@@ -346,7 +346,9 @@ exports.getAllNotSuccessful = async (req, res) => {
 
 exports.getAllSuccessful = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: 'Successful' }).populate('PaymentId').populate('UnitId').populate('UserId');;
+        const bookings = await BookingsModel.find({
+            Status: { $in: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrive'] }
+        }).populate('PaymentId').populate('UnitId').populate('UserId');        
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with the status 'Successful' found" });
