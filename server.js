@@ -126,13 +126,7 @@ app.get('/earnings/thisYear', bookingController.getThisYearEarnings);
 app.delete('/booking/:reference', bookingController.deleteBooking);
 
 // Notification_Routes
-//app.post ('/notif', notificationController.CreateNotif);
-//app.get ('/allNottif/', notificationController.getAllNotif);
-//app.get ('/AllNotifInUser/:userId', notificationController.getAllNotifUser);
-//app.get ('/AllNotifInAdmin/:adminId', notificationController.getAllNotifAdmin);
-//app.get ('/AllNotifInSuper/:superAdminId', notificationController.getAllNotifSuper);
-//app.get ('/Notif/:notifid', notificationController.getSpecificNtoif);
-//app.delete ('/notif/:notifId', notificationController.deleteNotif)
+// app.post()
 
 // Payment_Routes
 app.post('/payment/reservation', paymentController.PaymentReservation);

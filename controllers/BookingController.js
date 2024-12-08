@@ -331,11 +331,17 @@ exports.getAllDatesBookByUnit = async (req, res) => {
 
 exports.getAllNotSuccessful = async (req, res) => {
     try {
-        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrive', 'Did not pay'] } }).populate('PaymentId').populate('UnitId').populate('UserId');
+        const bookings = await BookingsModel.find({ Status: { $nin: ['Successful', 'Cancelled', 'Unpaid', 'Did not arrive', 'Did not pay'] } })
+            .populate('PaymentId')
+            .populate('UnitId')
+            .populate('UserId')
+            .sort({ createdAt: 1 }); 
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with a status other than 'Successful' found" });
         }
+
+        bookings.reverse();
 
         res.status(200).json({ message: "Bookings retrieved successfully", bookings });
     } catch (error) {
@@ -343,6 +349,7 @@ exports.getAllNotSuccessful = async (req, res) => {
         res.status(500).json({ message: "Error retrieving bookings", error });
     }
 };
+
 
 exports.getAllSuccessful = async (req, res) => {
     try {
@@ -366,11 +373,14 @@ exports.getAllSuccessfulAndCancelled = async (req, res) => {
         const bookings = await BookingsModel.find({ Status: { $in: ['Successful', 'Cancelled', 'Did not arrive', 'Unpaid'] } })
             .populate('PaymentId')
             .populate('UnitId')
-            .populate('UserId');
+            .populate('UserId')
+            .sort({ createdAt: 1 }); 
         
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ message: "No bookings with the status 'Successful' or 'Cancelled' found" });
         }
+
+        bookings.reverse();
 
         res.status(200).json({ message: "Successful and Cancelled bookings retrieved successfully", bookings });
     } catch (error) {
@@ -378,6 +388,7 @@ exports.getAllSuccessfulAndCancelled = async (req, res) => {
         res.status(500).json({ message: "Error retrieving successful and cancelled bookings", error });
     }
 };
+
 
 exports.getBookingByDate = async (req, res) => {
     try {

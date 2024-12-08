@@ -123,11 +123,14 @@ exports.addUnit = (req, res) => {
 exports.getAllUnits = async (req, res) => {
   try {
     const units = await Unit.find();
+    units.reverse();
+
     res.status(200).json(units);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch units', details: error.message });
   }
 };
+
 
 exports.getAvailableUnits = async (req, res) => {
   try {
