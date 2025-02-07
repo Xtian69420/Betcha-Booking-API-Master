@@ -13,7 +13,6 @@ Website URL: [Betcha Booking Web-app](https://betcha-booking.netlify.app)
 | `cors`                | `^2.8.5`    | Middleware for enabling Cross-Origin Resource Sharing                         |
 | `crypto-js`           | `^4.2.0`    | Library for standard cryptographic algorithms                                 |
 | `dotenv`              | `^16.4.5`   | Module for loading environment variables from a `.env` file                   |
-| `express`             | `^4.21.1`   | Web framework for building RESTful APIs                                       |
 | `google-auth-library` | `^9.14.2`   | Google authentication library for Node.js                                    |
 | `googleapis`          | `^144.0.0`  | Google API client library                                                     |
 | `jsonwebtoken`        | `^9.0.2`    | Library for generating and verifying JSON Web Tokens                          |
