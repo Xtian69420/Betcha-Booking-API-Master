@@ -19,8 +19,8 @@ Website URL: [Betcha Booking Web-app](https://betcha-booking.netlify.app)
 | `mongodb`             | `^6.10.0`   | MongoDB Node.js driver                                                        |
 | `mongoose`            | `^8.8.0`    | ODM library for MongoDB, managing schemas and models                          |
 | `multer`              | `^1.4.5-lts.1` | Middleware for handling `multipart/form-data` file uploads                   |
-| `node-cron`           | `^3.0.3`    | Library for scheduling tasks in Node.js                                       |
-| `nodemailer`          | `^6.9.16`   | Module for sending emails from Node.js applications                           |
+| `node-cron`           | `^3.0.3`    | Library 
+|
 | `streamifier`         | `^0.1.1`    | Converts a buffer or string to a readable stream                              |
 
 ---
