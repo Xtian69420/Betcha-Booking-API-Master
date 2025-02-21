@@ -10,7 +10,6 @@ Website URL: [Betcha Booking Web-app](https://betcha-booking.netlify.app)
 | `@sendgrid/mail`      | `^8.1.4`    | SendGrid API for sending transactional emails                                  |
 | `bcryptjs`            | `^2.4.3`    | JavaScript-based password hashing library                                     |
 | `body-parser`         | `^1.20.3`   | Middleware for parsing incoming request bodies in JSON or URL-encoded formats |
-| `cors`                | `^2.8.5`    | Middleware for enabling Cross-Origin Resource Sharing                         |
 | `crypto-js`           | `^4.2.0`    | Library for standard cryptographic algorithms                                 |
 | `dotenv`              | `^16.4.5`   | Module for loading environment variables from a `.env` file                   |
 | `google-auth-library` | `^9.14.2`   | Google authentication library for Node.js                                    |
