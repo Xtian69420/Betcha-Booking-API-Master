@@ -15,7 +15,6 @@ Website URL: [Betcha Booking Web-app](https://betcha-booking.netlify.app)
 | `google-auth-library` | `^9.14.2`   | Google authentication library for Node.js                                    |
 | `googleapis`          | `^144.0.0`  | Google API client library                                                     |
 | `jsonwebtoken`        | `^9.0.2`    | Library for generating and verifying JSON Web Tokens                          |
-| `mongodb`             | `^6.10.0`   | MongoDB Node.js driver                                                        |
 | `mongoose`            | `^8.8.0`    | ODM library for MongoDB, managing schemas and models                          |
 | `multer`              | `^1.4.5-lts.1` | Middleware for handling `multipart/form-data` file uploads                   |
 | `node-cron`           | `^3.0.3`    | Library 
