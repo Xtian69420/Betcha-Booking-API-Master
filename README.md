@@ -5,16 +5,13 @@
 Website URL: [Betcha Booking Web-app](https://betcha-booking.netlify.app)
 ---
 
-| **Packages**          | **Version** | **Description**                                                                 |
+| **Technologies**          | **Version** | **Description**                                                                 |
 |-----------------------|-------------|---------------------------------------------------------------------------------|
 | `@sendgrid/mail`      | `^8.1.4`    | SendGrid API for sending transactional emails                                  |
-| `bcryptjs`            | `^2.4.3`    | JavaScript-based password hashing library                                     |
 | `google-auth-library` | `^9.14.2`   | Google authentication library for Node.js                                    |
 | `googleapis`          | `^144.0.0`  | Google API client library                                                     |
-| `jsonwebtoken`        | `^9.0.2`    | Library for generating and verifying JSON Web Tokens                          |
 | `mongoose`            | `^8.8.0`    | ODM library for MongoDB, managing schemas and models                          |
 | `multer`              | `^1.4.5-lts.1` | Middleware for handling `multipart/form-data` file uploads                   |
-| `node-cron`           | `^3.0.3`    | Library 
 | `streamifier`         | `^0.1.1`    | Converts a buffer or string to a readable stream                              |
 
 ---
