@@ -10,8 +10,7 @@ Website URL: [Betcha Booking Web-app](https://betcha-booking.netlify.app)
 | `@sendgrid/mail`      | `^8.1.4`    | SendGrid API for sending transactional emails                                  |
 | `google-auth-library` | `^9.14.2`   | Google authentication library for Node.js                                    |
 | `googleapis`          | `^144.0.0`  | Google API client library                                                     |
-| `mongoose`            | `^8.8.0`    | ODM library for MongoDB, managing schemas and models                          |
-| `multer`              | `^1.4.5-lts.1` | Middleware for handling `multipart/form-data` file uploads                   |
+| `mongoose`            | `^8.8.0`    | ODM library for MongoDB, managing schemas and models                             
 | `streamifier`         | `^0.1.1`    | Converts a buffer or string to a readable stream                              |
 
 ---
